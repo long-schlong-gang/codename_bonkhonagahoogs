@@ -1,5 +1,5 @@
 #
-# SDL Makefile
+#	SDL Makefile
 #
 
 
@@ -17,4 +17,4 @@ run: build
 
 build:
 	@echo '### Building... ###\n'
-	${CC} ${CFLAGS} -o ${BIN}.exe main.c $(addprefix -l,${LIBS})
+	${CC} ${CFLAGS} -o ${BIN}.exe main.c src/*.c $(addprefix -l,${LIBS})

@@ -1,66 +1,68 @@
 //	
-//	Test Server using my Gin-Tonic Library's Networking functions
+//	PROJECT BONKHONAGAHOOGS
+//	
+//	Source Code v0.1.0
+//	By Olorin
 //	
 
+#define VERSION "0.1.0"
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_net.h>
 
 #include <log.h>
 #include <util.h>
 #include <screen.h>
 #include <sprite.h>
-#include <text.h>
 #include <events.h>
+#include <menu.h>
+#include "src/userdata.h"
+
+
+//	Include Scenes
+#include "scn_title.c"
 
 
 int main(int argc, char* args[]) {
 	// Set Logging to Develop Mode
+	// TODO: Change for Prod
 	Log_SetPrintLevel(LOG_DEBUG);
 	Log_SetPopupLevel(LOG_WARNING);
 
-
 	// Initialisation
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) Log_SDLMessage(LOG_FATAL, "Failed to initialise SDL");
-	Log_Message(LOG_DEBUG, "Hello, world!");
-	Log_Message(LOG_INFO, "Hello, world!");
 
-	Screen_Init("GinTonic Test Server", 256, 256);
+	// TODO: Change Window Title
+	Screen_Init("Proj. BHGH v" VERSION, 256, 256);
 	Sprite_Init();
 	Text_Init(NULL);
 	Events_Init(50);
-	
+	UserData_Init();
 
-	// Main Loop
-	bool isRunning = true;
-	bool redraw = true;
-	SDL_Event curr_event;
-	while (isRunning) {
+	// DEBUG: Test userdata writing
+	float vol = 0.0f;
+	int C = 0;
+	printf("--->[00] C: %i, Volume: %f\n", C, vol);
 
-		// Handle events
-		int scode = SDL_WaitEvent(&curr_event);
-		if (scode != 0) {
-			Events_HandleInternal(curr_event);
+	C = UserData_Get(0x0002, 0, &vol, sizeof(vol));
+	printf("--->[01] C: %i, Volume: %f\n", C, vol);
 
-			switch (curr_event.type) {
-				case SDL_QUIT:
-					isRunning = false;
-				continue;
-			}
-		}
+	vol = 0.3145f;
+	C = UserData_Set(0x0002, 0, &vol, sizeof(vol));
+	printf("--->[02] C: %i, Volume: %f\n", C, vol);
 
-		if (redraw) {
-			SDL_SetRenderDrawColor(g_renderer, 0x10, 0x40, 0x80, 0xFF);
-			SDL_RenderClear(g_renderer);
+	C = UserData_Get(0x0002, 0, &vol, sizeof(vol));
+	printf("--->[03] C: %i, Volume: %f\n", C, vol);
 
-			Text_Draw("Hello, world!", 37, 10, 20);
-			
-			SDL_RenderPresent(g_renderer);
-		}
+	// Load Scenes
+	Scene_Register(scn_title, "title");
+	Scene_Set("title");
 
-	}
-
+	// Main Game Loop
+	g_isRunning = true;
+	Scene_Execute();
 
 	// Termination
+	UserData_Term();
 	Text_Term();
 	Sprite_Term();
 	Screen_Term();
