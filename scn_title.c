@@ -2,10 +2,11 @@
 #include <SDL2/SDL.h>
 #include <screen.h>
 #include <scene.h>
-#include <menu.h>
+
+#include "src/ttf_text.h"
 
 
-static Menu *__title = NULL;
+static bool redraw = true;
 
 
 //	Menu Option Callbacks
@@ -24,31 +25,38 @@ void scn_title_cb_exit() {
 
 //	Scene Initialisation
 void scn_title_setup() {
-	__title = Menu_Create(NULL);
-	Menu_AddOption(__title, "Play Game", &scn_title_cb_play);
-	Menu_AddOption(__title, "Say Hello", &scn_title_cb_hello);
-	Menu_AddOption(__title, "Exit", &scn_title_cb_exit);
+	g_TextColours[25] = (SDL_Colour){ 0xFF, 0x80, 0x40, 0xFF };
 }
 
 
 //	Scene Termination
 void scn_title_teardown() {
-	Menu_Destroy(__title);
 }
 
 
 //	Scene Event Handler
 void scn_title_handle_events(SDL_Event evt) {
-	Menu_HandleInput(__title, evt);
+	if (evt.type == SDL_QUIT) g_isRunning = false;
+
+	if (evt.type == SDL_KEYDOWN) redraw = true;
 }
 
 
 //	Scene Draw Calls
 void scn_title_draw_frame() {
-	SDL_SetRenderDrawColor(g_renderer, 0x2c, 0x8d, 0xa3, 0xFF);
+	if (!redraw) return;
+
+	SDL_SetRenderDrawColor(g_renderer, 0x40, 0x80, 0xFF, 0xFF);
 	SDL_RenderClear(g_renderer);
 
-	Menu_Draw(__title, 10, 10);
+	TTFText_RenderGlyph(10, 10, TXTCLR_SPECIAL, 0x00FE); // Thorn
+
+	TTFText_RenderText(50, 50, 26, "Héllö, würld!");
+
+	TTFText_Textbox(50, 100, 30, 10, TXTCLR_RESET,
+		"'Twas Brillig and the slithy toves did gyre and gymble in the wabe. \n"
+		"All mimsy were the borogoves and the mome raths outgrabe."
+	);
 }
 
 
