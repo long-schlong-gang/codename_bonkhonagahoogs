@@ -15,6 +15,7 @@ static TTFText_Box box = {
 	"'Twas Brillig and the slithy toves did gyre and gymble in the wabe. \n"
 	"All mimsy were the borogoves and the mome raths outgrabe."
 };
+static int music = 0;
 
 
 //	Menu Option Callbacks
@@ -33,11 +34,17 @@ void scn_title_cb_exit() {
 
 //	Scene Initialisation
 void scn_title_setup() {
+	Sound_SFX_Prepare(SFX_DIALOGUE_BEEP);
+	Sound_OST_QueueTrack(OST_TEST_1);
+	Sound_OST_FadeNext(500);
 }
 
 
 //	Scene Termination
 void scn_title_teardown() {
+	Sound_OST_ClearQueue();
+	Sound_OST_FadeNext(500);
+	Sound_SFX_ClearAll();
 }
 
 
@@ -48,9 +55,30 @@ void scn_title_handle_events(SDL_Event evt) {
 	// DEBUG: Get typed-out text box working
 	Uint64 now = SDL_GetTicks64();
 
+	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_q) {
+		Sound_OST_ClearQueue();
+		Sound_OST_FadeNext(1000);
+	}
+
+	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_F2) {
+		if (music == 0) {
+			music = 1;
+			Sound_OST_QueueTrack(OST_TEST_2);
+		} else if (music == 1) {
+			music = 2;
+			Sound_OST_QueueTrack(OST_TEST_3);
+		} else if (music == 2) {
+			music = 0;
+			Sound_OST_QueueTrack(OST_TEST_1);
+		}
+
+		Sound_OST_FadeNext(2500);
+	}
+
 	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_F1) {
 		if (show_box) {
 			show_box = false;
+			Mix_FadeOutChannel(0, 100);
 		} else {
 			show_box = true;
 			box_tick = now;
@@ -64,12 +92,19 @@ void scn_title_handle_events(SDL_Event evt) {
 		}
 	}
 	
-	if (box.charcount > -1) {
-		box.charcount = (now - box_tick) / 50;
+	if (box.charcount > 0) {
+		int diff = (now - box_tick);
+		if (diff > 50) {
+			box.charcount++;
+			box_tick = now;
+
+			Sound_SFX_Play(SFX_DIALOGUE_BEEP, 0);
+		}
 	}
 
 	if (box.charcount > box.cols * box.rows) {
 		box.charcount = -1;
+		Mix_FadeOutChannel(0, 100);
 	}
 
 	redraw = true;

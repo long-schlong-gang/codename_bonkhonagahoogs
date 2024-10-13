@@ -15,13 +15,16 @@ void TTFText_Init() {
 		SDL_snprintf(msg, 512, "Failed to open font '" TTFTEXT_FONT_FILE "', %ipt: %s", TTFTEXT_FONT_SIZE, TTF_GetError());
 		Log_Message(LOG_ERROR, msg);
 	}
+
+	Log_Message(LOG_INFO, "Successfully Initialised Text System!");
 }
 
 void TTFText_Term() {
 	if (__font == NULL) return;
 	TTF_CloseFont(__font);
-
 	TTF_Quit();
+
+	Log_Message(LOG_INFO, "Terminated Text System");
 }
 
 int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint) {

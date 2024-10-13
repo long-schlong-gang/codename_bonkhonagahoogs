@@ -13,7 +13,7 @@ void UserData_Init() {
 	g_Userdata_File = Datablock_File_Open(UDATA_FILENAME);
 	if (g_Userdata_File != NULL) {
 		Binding_InitFromFile(g_Userdata_File, UDATA_DBID_BINDINGS);
-		Log_Message(LOG_INFO, "Loaded User Data from '" UDATA_FILENAME "' successfully.");
+		Log_Message(LOG_INFO, "Successfully Initialised User-Data System! '" UDATA_FILENAME "' Loaded");
 		return;
 	}
 	Log_Message(LOG_INFO, "No User Data file '" UDATA_FILENAME "' found: Creating...");
@@ -60,7 +60,7 @@ void UserData_Init() {
 	Datablock_File_Close(g_Userdata_File);
 	g_Userdata_File = Datablock_File_Open(UDATA_FILENAME);
 
-	Log_Message(LOG_INFO, "User Data file '" UDATA_FILENAME "' Created successfully.");
+	Log_Message(LOG_INFO, "Successfully Initialised User-Data System! '" UDATA_FILENAME "' Created");
 }
 
 void UserData_Term() {
@@ -69,6 +69,7 @@ void UserData_Term() {
 	// TODO: Write any necessary changes to file
 
 	Datablock_File_Close(g_Userdata_File);
+	Log_Message(LOG_INFO, "Terminated User-Data System");
 }
 
 //	Internal function to look up datablock indices in the userdata file
