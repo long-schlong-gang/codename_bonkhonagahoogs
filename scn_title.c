@@ -8,6 +8,14 @@
 
 static bool redraw = true;
 
+static bool show_box = false;
+static Uint64 box_tick = 0;
+static TTFText_Box box = {
+	50, 100, 30, 10, CLR_RESET, 0,
+	"'Twas Brillig and the slithy toves did gyre and gymble in the wabe. \n"
+	"All mimsy were the borogoves and the mome raths outgrabe."
+};
+
 
 //	Menu Option Callbacks
 void scn_title_cb_play() {
@@ -25,7 +33,6 @@ void scn_title_cb_exit() {
 
 //	Scene Initialisation
 void scn_title_setup() {
-	g_TextColours[25] = (SDL_Colour){ 0xFF, 0x80, 0x40, 0xFF };
 }
 
 
@@ -38,7 +45,34 @@ void scn_title_teardown() {
 void scn_title_handle_events(SDL_Event evt) {
 	if (evt.type == SDL_QUIT) g_isRunning = false;
 
-	if (evt.type == SDL_KEYDOWN) redraw = true;
+	// DEBUG: Get typed-out text box working
+	Uint64 now = SDL_GetTicks64();
+
+	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_F1) {
+		if (show_box) {
+			show_box = false;
+		} else {
+			show_box = true;
+			box_tick = now;
+			box.charcount = 1;
+		}
+	}
+
+	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_SPACE) {
+		if (show_box && box.charcount > 0) {
+			box.charcount = -1;
+		}
+	}
+	
+	if (box.charcount > -1) {
+		box.charcount = (now - box_tick) / 50;
+	}
+
+	if (box.charcount > box.cols * box.rows) {
+		box.charcount = -1;
+	}
+
+	redraw = true;
 }
 
 
@@ -46,17 +80,13 @@ void scn_title_handle_events(SDL_Event evt) {
 void scn_title_draw_frame() {
 	if (!redraw) return;
 
-	SDL_SetRenderDrawColor(g_renderer, 0x40, 0x80, 0xFF, 0xFF);
+	Colours_SetRenderer(CLR_WINDOW_BG);
 	SDL_RenderClear(g_renderer);
 
-	TTFText_RenderGlyph(10, 10, TXTCLR_SPECIAL, 0x00FE); // Thorn
-
+	TTFText_RenderGlyph(10, 10, CLR_SPECIAL, 0x00FE); // Thorn
 	TTFText_RenderText(50, 50, 26, "Héllö, würld!");
 
-	TTFText_Textbox(50, 100, 30, 10, TXTCLR_RESET,
-		"'Twas Brillig and the slithy toves did gyre and gymble in the wabe. \n"
-		"All mimsy were the borogoves and the mome raths outgrabe."
-	);
+	if (show_box) TTFText_Draw_Box(box);
 }
 
 

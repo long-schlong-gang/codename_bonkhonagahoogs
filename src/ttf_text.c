@@ -1,8 +1,6 @@
 #include "ttf_text.h"
 
 
-SDL_Colour g_TextColours[TTFTEXT_NUM_CLRS];
-
 static TTF_Font *__font = NULL;
 static SDL_Texture *__glyph_cache[95]; // Cache of just printable ASCII glyphs
 static SDL_Rect __dst_rect = { 0, 0, 0, 0 };
@@ -26,32 +24,7 @@ void TTFText_Term() {
 	TTF_Quit();
 }
 
-SDL_Colour TTFText_GetColour(TextColour clr) {
-	
-	// Negative values are the special rainbow colour
-	if (clr < 0) {
-		Uint64 tick = SDL_GetTicks64();
-		Uint8 r = (tick >> 4) + 0x00;
-		Uint8 g = (tick >> 3) + 0x55;
-		Uint8 b = (tick >> 2) + 0xAA;
-
-		return (SDL_Colour){
-			(r > 127) ? (r<<1) : 0xFF - (r<<1),
-			(g > 127) ? (g<<1) : 0xFF - (g<<1),
-			(b > 127) ? (b<<1) : 0xFF - (b<<1),
-			0xFF
-		};
-	}
-
-	// Colours out of bounds or zero return default colour (white)
-	if (clr == 0 || clr > TTFTEXT_NUM_CLRS) {
-		return (SDL_Colour){ TTFTEXT_DEF_CLR };
-	}
-
-	return g_TextColours[clr - 1];
-}
-
-int TTFText_RenderGlyph(int x, int y, TextColour clr, Uint32 codepoint) {
+int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint) {
 	if (__font == NULL) return -1;
 
 	// Check cache
@@ -91,7 +64,7 @@ int TTFText_RenderGlyph(int x, int y, TextColour clr, Uint32 codepoint) {
 	}
 
 	// Draw to screen
-	SDL_Colour rgb = TTFText_GetColour(clr);
+	SDL_Colour rgb = Colours_GetRGBA(clr);
 	SDL_SetTextureColorMod(tex, rgb.r, rgb.g, rgb.b);
 	__dst_rect.x = x; __dst_rect.y = y;
 	SDL_RenderCopy(g_renderer, tex, NULL, &__dst_rect);
@@ -136,7 +109,7 @@ static Uint32 __UTF8_NextCodepoint(char *str, char **next) {
 	return codepoint;
 }
 
-void TTFText_RenderText(int x, int y, TextColour clr, char *str) {
+void TTFText_RenderText(int x, int y, PaletteColour clr, char *str) {
 	if (__font == NULL) {
 		Log_Message(LOG_ERROR, "Tried Rendering text before initialising TTFText System");
 		return;
@@ -154,62 +127,75 @@ void TTFText_RenderText(int x, int y, TextColour clr, char *str) {
 
 }
 
-void TTFText_Textbox(int x, int y, int cols, int rows, TextColour clr, char *str) {
+void TTFText_Draw_Box(TTFText_Box txt) {
 	
 	// Draw Box
-	SDL_SetRenderDrawColor(g_renderer, TTFTEXT_BOX_CLR);
+	Colours_SetRenderer(CLR_TXTBOX_BG);
 	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		x + TTFTEXT_BOX_BORDER_WIDTH,
-		y + TTFTEXT_BOX_BORDER_WIDTH,
-		cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING,
-		rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING,
+		txt.x + TTFTEXT_BOX_BORDER_WIDTH,
+		txt.y + TTFTEXT_BOX_BORDER_WIDTH,
+		txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING,
+		txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING,
 	});
 
-	SDL_SetRenderDrawColor(g_renderer, TTFTEXT_BOX_BORDER_CLR);
+	Colours_SetRenderer(CLR_TXTBOX_BRDR);
 	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		x,
-		y,
-		cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		txt.x,
+		txt.y,
+		txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
 		TTFTEXT_BOX_BORDER_WIDTH
 	});
 	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		x,
-		y,
+		txt.x,
+		txt.y,
 		TTFTEXT_BOX_BORDER_WIDTH,
-		rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
 	});
 	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		x + cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
-		y,
+		txt.x + txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
+		txt.y,
 		TTFTEXT_BOX_BORDER_WIDTH,
-		rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
 	});
 	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		x,
-		y + rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
-		cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		txt.x,
+		txt.y + txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
+		txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
 		TTFTEXT_BOX_BORDER_WIDTH,
 	});
 
+	// Just draw the box
+	if (txt.charcount == 0) return;
+
 	// Draw Text
-	char *next = str;
-	for (int yb=0; yb<rows; yb++) {
-		for (int xb=0; xb<cols; xb++) {
-			Uint32 codepoint = __UTF8_NextCodepoint(str, &next);
+	PaletteColour curr_clr = txt.clr;
+	int count = 0;
+	char *next = txt.str;
+	for (int yb=0; yb<txt.rows; yb++) {
+		for (int xb=0; xb<txt.cols; xb++) {
+			Uint32 codepoint = __UTF8_NextCodepoint(txt.str, &next);
 			if (codepoint == 0) return;
 
 			if (codepoint == '\n') {
-				xb = 0;
+				xb = -1;
 				yb++;
 				continue;
 			}
 
 			TTFText_RenderGlyph(
-				x + xb*__dst_rect.w + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
-				y + yb*__dst_rect.h + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
-				clr, codepoint
+				txt.x + xb*__dst_rect.w + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
+				txt.y + yb*__dst_rect.h + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
+				curr_clr, codepoint
 			);
+			count++;
+
+			if (txt.charcount > 0 && count >= txt.charcount) return;
 		}
 	}
 
 }
+
+//void TTFText_TextboxSlow(int x, int y, int cols, int rows, TextColour clr, char *str, Uint64 start_tick, int delay) {
+//	if (delay <= 0) TTFText_Textbox(x, y, cols, rows, clr, str, -1);
+//
+//}

@@ -5,34 +5,37 @@
 //	Handles Rendering of text and text-boxes
 //	using TTF Fonts and SDL_TTF
 //	
+//	TODO:	Maybe cache full rendered texture for repeated draws
+//			Alternate versions of text rendering functions that return an `SDL_Texture`
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <screen.h>
 #include <log.h>
 
+#include "colours.h"
+
 
 ////	Constants
 #define TTFTEXT_FONT_FILE "assets/generale.otf"
 #define TTFTEXT_FONT_SIZE 34
-#define TTFTEXT_DEF_CLR 0xFF, 0xFF, 0xFF, 0xFF
-#define TTFTEXT_NUM_CLRS 128
 
 #define TTFTEXT_BOX_PADDING 10
 #define TTFTEXT_BOX_BORDER_WIDTH 5
-#define TTFTEXT_BOX_BORDER_CLR 0xFF, 0xFF, 0xFF, 0xFF
-#define TTFTEXT_BOX_CLR 0x00, 0x00, 0x00, 0xFF
 
 
 ////	Types
-typedef int TextColour;
-#define TXTCLR_SPECIAL (TextColour)( -1 )
-#define TXTCLR_RESET (TextColour)( 0 )
+typedef struct {
+	int x; int y;
+	int cols; int rows;
+	PaletteColour clr;
+	int charcount;
+	char *str;
+	//TODO: SDL_Texture *full_render; // Saves time for repeat draws
+} TTFText_Box;
 
 
-////	Global Vars
-extern SDL_Colour g_TextColours[TTFTEXT_NUM_CLRS];
-
+////	Public Functions
 
 //	Initialises the TTF Font System
 //	
@@ -42,10 +45,6 @@ void TTFText_Init();
 //	
 void TTFText_Term();
 
-//	Gets the SDL_Colour for a TextColour
-//	
-SDL_Colour TTFText_GetColour(TextColour clr);
-
 //	Renders a single Unicode glyph to the screen
 //	
 //	Glyphs in printable ASCII are cached
@@ -54,19 +53,21 @@ SDL_Colour TTFText_GetColour(TextColour clr);
 //	
 //	NOTE: SDL_ttf Seems to have trouble with higher Unicode codepoints,
 //	so it is not recommended to go about about U+8000, if you can help it
-int TTFText_RenderGlyph(int x, int y, TextColour clr, Uint32 codepoint);
+int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint);
 
 //	Renders a string at the given coordinates
 //	
 //	Takes a UTF-8 string
 //	TODO: Custom escapes?
-void TTFText_RenderText(int x, int y, TextColour clr, char *str);
+void TTFText_RenderText(int x, int y, PaletteColour clr, char *str);
 
-
-// TODO:
 //	Renders a text box with the given size and handles wrapping
 //	
-void TTFText_Textbox(int x, int y, int cols, int rows, TextColour clr, char *str);
-
+//	Inserts line breaks after `cols` characters on a row,
+//	Inserts line breaks for '\n' chars
+//	The last parameter `charcount` determines how many chars are drawn
+//	this lets you have the text slowly type out over multiple calls
+//	If it's negative, the whole text is drawn all at once
+void TTFText_Draw_Box(TTFText_Box txt);
 
 #endif

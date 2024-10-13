@@ -19,12 +19,19 @@ void UserData_Init() {
 	Log_Message(LOG_INFO, "No User Data file '" UDATA_FILENAME "' found: Creating...");
 
 	// Create User Data File with default settings
-	const int num_blocks = 1;
+	const int num_blocks = 2;
 	Datablock *user_data_blocks[num_blocks];
 
 	// Create Audio settings
 	float default_volume = 0.50f;	// Default Volume: 50%
 	user_data_blocks[0] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume));
+
+	// Create Black Colour Palette
+	// TODO: Implement user palette
+	// TODO: Keep in sync with colours.h
+	//const int num_clrs = 3;
+	//Uint32 black_palette[3];
+	//user_data_blocks[1] = Datablock_Create(UDATA_DBID_COLOURS, &black_palette, sizeof(black_palette));
 
 	g_Userdata_File = Datablock_File_Create(UDATA_FILENAME, user_data_blocks, num_blocks);
 

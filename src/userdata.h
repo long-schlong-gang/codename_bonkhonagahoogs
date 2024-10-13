@@ -14,9 +14,10 @@
 #define UDATA_FILENAME	"userdata.dbf"	// Where to find userdata
 
 //	Userdata File Datablock-IDs/Types
-#define UDATA_DBID_BINDINGS 0x0001		// Keybinding Preferences
-#define UDATA_DBID_AUDIOPRF 0x0002		// Audio Preferences
-#define UDATA_DBID_SAVEINFO 0x0100		// User Save data header
+#define UDATA_DBID_BINDINGS	0x0001		// Keybinding Preferences
+#define UDATA_DBID_AUDIOPRF	0x0002		// Audio Preferences
+#define UDATA_DBID_COLOURS	0x0003		// Global Colour Palette
+#define UDATA_DBID_SAVEINFO	0x0100		// User Save data header
 
 
 ////	Global Vars
