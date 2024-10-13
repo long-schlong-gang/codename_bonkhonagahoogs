@@ -37,7 +37,7 @@ void Sound_Init() {
 	}
 
 	// TODO: Set from user prefs
-	Mix_MasterVolume( 0.80f * MIX_MAX_VOLUME );
+	Mix_MasterVolume( 0.30f * MIX_MAX_VOLUME );
 
 	Log_Message(LOG_INFO, "Successfully Initialised Sound System!");
 }

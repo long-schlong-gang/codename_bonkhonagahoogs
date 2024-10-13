@@ -1,9 +1,11 @@
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <screen.h>
 #include <scene.h>
 
 #include "src/ttf_text.h"
+#include "src/sound.h"
 
 
 static bool redraw = true;
@@ -11,11 +13,17 @@ static bool redraw = true;
 static bool show_box = false;
 static Uint64 box_tick = 0;
 static TTFText_Box box = {
-	50, 100, 30, 10, CLR_RESET, 0,
-	"'Twas Brillig and the slithy toves did gyre and gymble in the wabe. \n"
-	"All mimsy were the borogoves and the mome raths outgrabe."
+	50, 600, 35, 8, CLR_RESET, 0,
+	"\n"
+	" Hello, how are you today?\n"
+	"\n"
+	"     Fine, thanks.\n"
+	"     UTF-8 Wörks, btw. §°è£\n"
+	"   → Show me your tits! (BAD END)\n"
+	"     Goodbye.\n"
 };
 static int music = 0;
+static SDL_Texture *eruya = NULL;
 
 
 //	Menu Option Callbacks
@@ -37,6 +45,9 @@ void scn_title_setup() {
 	Sound_SFX_Prepare(SFX_DIALOGUE_BEEP);
 	Sound_OST_QueueTrack(OST_TEST_1);
 	Sound_OST_FadeNext(500);
+
+	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
+	eruya = IMG_LoadTexture(g_renderer, "assets/img/eruya.png");
 }
 
 
@@ -45,6 +56,9 @@ void scn_title_teardown() {
 	Sound_OST_ClearQueue();
 	Sound_OST_FadeNext(500);
 	Sound_SFX_ClearAll();
+
+	SDL_DestroyTexture(eruya);
+	IMG_Quit();
 }
 
 
@@ -118,8 +132,13 @@ void scn_title_draw_frame() {
 	Colours_SetRenderer(CLR_WINDOW_BG);
 	SDL_RenderClear(g_renderer);
 
-	TTFText_RenderGlyph(10, 10, CLR_SPECIAL, 0x00FE); // Thorn
-	TTFText_RenderText(50, 50, 26, "Héllö, würld!");
+	//TTFText_RenderGlyph(10, 10, CLR_SPECIAL, 0x00FE); // Thorn
+	//TTFText_RenderText(50, 50, 26, "Héllö, würld!");
+
+	SDL_RenderCopy(g_renderer, eruya, NULL, &(struct SDL_Rect){
+		50, 50,
+		383, 879,
+	});
 
 	if (show_box) TTFText_Draw_Box(box);
 }

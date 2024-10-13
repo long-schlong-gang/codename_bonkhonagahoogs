@@ -17,7 +17,7 @@
 
 
 ////	Constants
-#define TTFTEXT_FONT_FILE "assets/generale.otf"
+#define TTFTEXT_FONT_FILE "assets/fonts/generale.otf"
 #define TTFTEXT_FONT_SIZE 34
 
 #define TTFTEXT_BOX_PADDING 10
