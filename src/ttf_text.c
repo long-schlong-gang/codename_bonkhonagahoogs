@@ -130,7 +130,7 @@ void TTFText_RenderText(int x, int y, PaletteColour clr, char *str) {
 
 }
 
-void TTFText_Draw_Box(TTFText_Box txt) {
+int TTFText_Draw_Box(TTFText_Box txt) {
 	
 	// Draw Box
 	Colours_SetRenderer(CLR_TXTBOX_BG);
@@ -168,7 +168,7 @@ void TTFText_Draw_Box(TTFText_Box txt) {
 	});
 
 	// Just draw the box
-	if (txt.charcount == 0) return;
+	if (txt.charcount == 0) return 0;
 
 	// Draw Text
 	PaletteColour curr_clr = txt.clr;
@@ -177,7 +177,7 @@ void TTFText_Draw_Box(TTFText_Box txt) {
 	for (int yb=0; yb<txt.rows; yb++) {
 		for (int xb=0; xb<txt.cols; xb++) {
 			Uint32 codepoint = __UTF8_NextCodepoint(txt.str, &next);
-			if (codepoint == 0) return;
+			if (codepoint == 0) return -1;
 
 			if (codepoint == '\n') {
 				xb = -1;
@@ -192,13 +192,9 @@ void TTFText_Draw_Box(TTFText_Box txt) {
 			);
 			count++;
 
-			if (txt.charcount > 0 && count >= txt.charcount) return;
+			if (txt.charcount > 0 && count >= txt.charcount) return count;
 		}
 	}
 
+	return -1;
 }
-
-//void TTFText_TextboxSlow(int x, int y, int cols, int rows, TextColour clr, char *str, Uint64 start_tick, int delay) {
-//	if (delay <= 0) TTFText_Textbox(x, y, cols, rows, clr, str, -1);
-//
-//}

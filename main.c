@@ -52,16 +52,16 @@ int main(int argc, char* args[]) {
 
 	// TODO: Change Window Title
 	Screen_Init(ENGINE " v" VERSION, SCREEN_WIDTH, SCREEN_HEIGHT);
-	Sprite_Init(); Events_Init(50);
+	Sprite_Init(); Events_Init(5);
 	UserData_Init(); TTFText_Init();
 	Sound_Init();
+	Log_Message(LOG_INFO, "------[ GAME START ]------");
 
 	// Load Scenes
 	Scene_Register(scn_title, "title");
 	Scene_Set("title");
 
 	// Main Game Loop
-	Log_Message(LOG_INFO, "------[ GAME START ]------");
 	g_isRunning = true;
 	Scene_Execute();
 

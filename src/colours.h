@@ -13,7 +13,7 @@
 
 
 ////	Constants
-#define CLR_COUNT 3
+#define CLR_COUNT 5
 
 
 ////	Types
@@ -24,6 +24,8 @@ typedef Sint16 PaletteColour;
 #define CLR_WINDOW_BG	(PaletteColour)( 1 )
 #define CLR_TXTBOX_BG	(PaletteColour)( 2 )
 #define CLR_TXTBOX_BRDR	(PaletteColour)( 3 )
+#define CLR_TEXT_NORM	(PaletteColour)( 4 )
+#define CLR_TEXT_EMPH	(PaletteColour)( 5 )
 
 
 ////	Global Vars

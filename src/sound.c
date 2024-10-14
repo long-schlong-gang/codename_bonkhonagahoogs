@@ -86,10 +86,18 @@ void Sound_SFX_Play(Sound_Effect sfx, int channel) {
 	Mix_PlayChannel(channel, g_SoundEffects[sfx], 0);
 }
 
+void Sound_SFX_Clear(Sound_Effect sfx) {
+	if (sfx < 0 || sfx > SFX_COUNT) return;
+	if (g_SoundEffects[sfx] == NULL) return;
+	Mix_FreeChunk(g_SoundEffects[sfx]);
+	g_SoundEffects[sfx] = NULL;
+}
+
 void Sound_SFX_ClearAll() {
 	for (int i=0; i<SFX_COUNT; i++) {
 		if (g_SoundEffects[i] == NULL) continue;
 		Mix_FreeChunk(g_SoundEffects[i]);
+		g_SoundEffects[i] = NULL;
 	}
 }
 
@@ -120,11 +128,13 @@ void Sound_OST_ClearQueue() {
 }
 
 void Sound_OST_FadeNext(int ms) {
+	Mix_Music *last = g_CurrentMusic;
 	g_CurrentMusic = g_QueuedMusic;
 	g_QueuedMusic = NULL;
 
 	Mix_FadeOutMusic(ms);
 	if (g_CurrentMusic != NULL) Mix_FadeInMusic(g_CurrentMusic, -1, ms);
+	Mix_FreeMusic(last);
 }
 
 void Sound_OST_TogglePause(int ms) {

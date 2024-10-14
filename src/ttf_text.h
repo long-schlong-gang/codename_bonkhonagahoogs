@@ -68,6 +68,8 @@ void TTFText_RenderText(int x, int y, PaletteColour clr, char *str);
 //	The last parameter `charcount` determines how many chars are drawn
 //	this lets you have the text slowly type out over multiple calls
 //	If it's negative, the whole text is drawn all at once
-void TTFText_Draw_Box(TTFText_Box txt);
+//	
+//	Returns how many characters were drawn; -1 once it's rendered them all
+int TTFText_Draw_Box(TTFText_Box txt);
 
 #endif

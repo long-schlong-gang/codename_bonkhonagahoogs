@@ -9,7 +9,7 @@ Dialogues have unique IDs (Dialogue-ID)
 This is a 16-bit number
 
 ### Nodes
-Each dialogue is broken into nodes/pages, which just represent a single back and forth
+Each dialogue is broken into nodes, which just represent a single back and forth
 interaction. E.g.:
 
 ```
@@ -22,7 +22,7 @@ interaction. E.g.:
 ```
 
 Each node has a unique ID (within its dialogue) (Node-ID)
-This is a 16-bit number
+This is a 16-bit number (Cannot be 0x0000)
 
 Combined with its Dialogue ID, this makes a 32-bit ID (Full-Node-ID)
 (Probably not necessary)
@@ -34,6 +34,11 @@ The nodes also contain following information:
  - What music should be playing
  - Conditional redirects (If a certain flag is set, jump to a different node)
 (Should these just be handled with escapes?)
+
+~~The text of a node may be split into "pages", that is a longer stretch of		~~
+~~text separated by the ASCII "Group Separator" (`GS`) character `0x1D`.     	~~
+~~These will cause the text to stop and display a "next" character (->), while	~~
+~~waiting for the player to press a key.                                     	~~
 
 ### Character Text
 Each node contains text spoken by the other character in the dialogue.
@@ -62,7 +67,8 @@ Note: `0x1B` is `ESC` in ASCII
 | `0x1B 01 pp pp` | Set text colour after sequence to the palette colour `0xpppp` |
 | `0x1B 02 tt`    | Set text speed (delay) to `tt` ms per char (50 default) |
 | `0x1B 03 tt`    | Wait `tt` ms before proceeding |
-| `0x1B 10 pc`    | Set character sprite & pose; `p` is the pose number (0 = Not present); `c` is the character ID |
+| `0x1B 10 cs`    | Set character sprite/pose; `s` is the pose/sprite number (0 = Not present); `c` is the character ID |
+| `0x1B 11 cx`    | Set character position; `x` is the signed horizontal position (see below); `c` is the character ID |
 | `0x1B 20`       | Pause currently playing music |
 | `0x1B 21`       | Unpause/Resume music |
 | `0x1B 22 mm mm` | Change music to track with ID `0xmmmm` |
@@ -75,11 +81,36 @@ Note: `0x1B` is `ESC` in ASCII
 | `0x1B E1 ff ff` | Set Global flag `0xffff` (Set True) |
 | `0x1B F0 nn nn` | Jump straight to node `0xnnnn` |
 
+**Character IDs**
+| ID  | Hex | Character  |
+|-----|-----|------------|
+| `0` | `0` | NULL/None  |
+| `1` | `1` | Levu       |
+| `2` | `2` | Eruya      |
+| `3` | `3` | Fedelov    |
+| `4` | `4` | Kelen      |
+| ... | ... | UNUSED     |
+| `15`| `F` | You/Player |
+
 Question????????:
 	How to handle multiple characters in a node?
 
 ## File Format
-Each "page" of dialogue is stored as a single datablock.
+Each node of dialogue is stored as a single datablock.
+
+A dialogue file has a single header block as the first block in the file.
+This contains following fields: (little-endian)
+
+| Byte Pos. | Length (B) | Field Description |
+|-----------|------------|-------------------|
+| `0x0000`  | 16-Bit, 2B | Root Node block ID |
+
+Each node block contains the following fields: (little-endian)
+
+| Byte Pos. | Length (B) | Field Description |
+|-----------|------------|-------------------|
+| `0x0000`  | (var.), nB | UTF-8 Encoded Dialogue Text; `NULL` Terminated |
 
 Dialogues are a separate file?
-Then master file of available dialogues?
+...then master file of available dialogues?
+

@@ -69,6 +69,10 @@ void Sound_SFX_Prepare(Sound_Effect sfx);
 //	`channel` can be -1 for the next available channel
 void Sound_SFX_Play(Sound_Effect sfx, int channel);
 
+//	Clears a prepared sound to make room for new ones
+//	
+void Sound_SFX_Clear(Sound_Effect sfx);
+
 //	Clears prepared sounds to make room for new ones
 //	
 //	TODO: Overhaul audio system; this is weird, I think

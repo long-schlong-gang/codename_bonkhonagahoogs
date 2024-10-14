@@ -5,25 +5,15 @@
 #include <scene.h>
 
 #include "src/ttf_text.h"
+#include "src/dialogue.h"
 #include "src/sound.h"
 
 
 static bool redraw = true;
 
-static bool show_box = false;
-static Uint64 box_tick = 0;
-static TTFText_Box box = {
-	50, 600, 35, 8, CLR_RESET, 0,
-	"\n"
-	" Hello, how are you today?\n"
-	"\n"
-	"     Fine, thanks.\n"
-	"     UTF-8 Wörks, btw. §°è£\n"
-	"   → Show me your tits! (BAD END)\n"
-	"     Goodbye.\n"
-};
 static int music = 0;
 static SDL_Texture *eruya = NULL;
+static SDL_Texture *thing = NULL;
 
 
 //	Menu Option Callbacks
@@ -43,11 +33,14 @@ void scn_title_cb_exit() {
 //	Scene Initialisation
 void scn_title_setup() {
 	Sound_SFX_Prepare(SFX_DIALOGUE_BEEP);
-	Sound_OST_QueueTrack(OST_TEST_1);
-	Sound_OST_FadeNext(500);
+	//Sound_OST_QueueTrack(OST_TEST_1);
+	//Sound_OST_FadeNext(500);
 
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
-	eruya = IMG_LoadTexture(g_renderer, "assets/img/eruya.png");
+	eruya = IMG_LoadTexture(g_renderer, "assets/img/eruya.jpg");
+	thing = IMG_LoadTexture(g_renderer, "assets/img/image.jpg");
+
+	Dialogue_LoadTree(DIALOGUE_FILENAME);
 }
 
 
@@ -57,6 +50,9 @@ void scn_title_teardown() {
 	Sound_OST_FadeNext(500);
 	Sound_SFX_ClearAll();
 
+	Dialogue_UnloadTree();
+
+	SDL_DestroyTexture(thing);
 	SDL_DestroyTexture(eruya);
 	IMG_Quit();
 }
@@ -66,8 +62,7 @@ void scn_title_teardown() {
 void scn_title_handle_events(SDL_Event evt) {
 	if (evt.type == SDL_QUIT) g_isRunning = false;
 
-	// DEBUG: Get typed-out text box working
-	Uint64 now = SDL_GetTicks64();
+	Dialogue_HandleEvents(evt);
 
 	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_q) {
 		Sound_OST_ClearQueue();
@@ -89,38 +84,6 @@ void scn_title_handle_events(SDL_Event evt) {
 		Sound_OST_FadeNext(2500);
 	}
 
-	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_F1) {
-		if (show_box) {
-			show_box = false;
-			Mix_FadeOutChannel(0, 100);
-		} else {
-			show_box = true;
-			box_tick = now;
-			box.charcount = 1;
-		}
-	}
-
-	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_SPACE) {
-		if (show_box && box.charcount > 0) {
-			box.charcount = -1;
-		}
-	}
-	
-	if (box.charcount > 0) {
-		int diff = (now - box_tick);
-		if (diff > 50) {
-			box.charcount++;
-			box_tick = now;
-
-			Sound_SFX_Play(SFX_DIALOGUE_BEEP, 0);
-		}
-	}
-
-	if (box.charcount > box.cols * box.rows) {
-		box.charcount = -1;
-		Mix_FadeOutChannel(0, 100);
-	}
-
 	redraw = true;
 }
 
@@ -137,10 +100,10 @@ void scn_title_draw_frame() {
 
 	SDL_RenderCopy(g_renderer, eruya, NULL, &(struct SDL_Rect){
 		50, 50,
-		383, 879,
+		339, 859,
 	});
 
-	if (show_box) TTFText_Draw_Box(box);
+	Dialogue_DrawAll();
 }
 
 
