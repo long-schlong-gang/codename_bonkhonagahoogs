@@ -13,19 +13,22 @@
 
 
 ////	Constants
-#define CLR_COUNT 5
+#define CLR_COUNT 8
 
 
 ////	Types
 typedef Sint16 PaletteColour;
 
-#define CLR_SPECIAL 	(PaletteColour)( -1 )
-#define CLR_RESET		(PaletteColour)( 0 )
-#define CLR_WINDOW_BG	(PaletteColour)( 1 )
-#define CLR_TXTBOX_BG	(PaletteColour)( 2 )
-#define CLR_TXTBOX_BRDR	(PaletteColour)( 3 )
-#define CLR_TEXT_NORM	(PaletteColour)( 4 )
-#define CLR_TEXT_EMPH	(PaletteColour)( 5 )
+#define CLR_SPECIAL		(PaletteColour)( -1 )
+#define CLR_BLACK		(PaletteColour)( 0x00 )
+#define CLR_WINDOW_BG	(PaletteColour)( 0x01 )
+#define CLR_TXTBOX_BG	(PaletteColour)( 0x02 )
+#define CLR_TXTBOX_BRDR	(PaletteColour)( 0x03 )
+#define CLR_TEXT_NORM	(PaletteColour)( 0x04 )
+#define CLR_TEXT_EMPH	(PaletteColour)( 0x05 )
+#define CLR_BTN_NORMAL	(PaletteColour)( 0x06 )
+#define CLR_BTN_SELECT	(PaletteColour)( 0x07 )
+#define CLR_BTN_BLOCKED	(PaletteColour)( 0x08 )
 
 
 ////	Global Vars
@@ -45,6 +48,7 @@ extern SDL_Colour g_ColourPalette[CLR_COUNT];
 
 //	Gets colour from the global colour palette
 //	
+//	If `clr` is out of bounds, it just returns black
 SDL_Colour Colours_GetRGBA(PaletteColour clr);
 
 //	Sets a global colour palette colour

@@ -7,6 +7,9 @@ SDL_Colour g_ColourPalette[CLR_COUNT] = {
 	{ 0xFF, 0xFF, 0xFF, 0xFF },	// 0x0003: Text-Box Outline/Border
 	{ 0xFF, 0xFF, 0xFF, 0xFF },	// 0x0004: Regular Text
 	{ 0xFF, 0x80, 0x40, 0xFF },	// 0x0005: Emphasised Text
+	{ 0xFF, 0xFF, 0xFF, 0xFF },	// 0x0006: Regular Text-Button
+	{ 0xFF, 0x80, 0x40, 0xFF },	// 0x0007: Highlighted/Selected Text-Button
+	{ 0xCC, 0xCC, 0xCC, 0xFF },	// 0x0008: Disabled Text-Button
 };
 
 
@@ -32,9 +35,9 @@ SDL_Colour Colours_GetRGBA(PaletteColour clr) {
 		};
 	}
 
-	// Colours out of bounds or zero return default colour (white)
+	// Colour out of bounds or zero; return black
 	if (clr == 0 || clr > CLR_COUNT) {
-		return (SDL_Colour){ 0xFF, 0xFF, 0xFF, 0xFF };
+		return (SDL_Colour){ 0x00, 0x00, 0x00, 0xFF };
 	}
 
 	return g_ColourPalette[clr - 1];

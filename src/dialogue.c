@@ -88,9 +88,8 @@ void Dialogue_UnloadTree() {
 void Dialogue_HandleEvents(SDL_Event event) {
 	if (g_CurrentDialogue.root == NULL) return;
 
-	// TODO: Make proper system to track which keys are held
 	static bool key_held = false;
-	static bool done_next = false;
+	//static bool done_next = false;
 	switch (event.type) {
 		case SDL_KEYDOWN: {
 			if (key_held) break;
@@ -100,30 +99,30 @@ void Dialogue_HandleEvents(SDL_Event event) {
 			if (in == INPUT_SELECT) {
 			
 				// Start Dialogue
-				if (g_CurrentDialogue.current == NULL) {
-					g_CurrentDialogue.current = g_CurrentDialogue.root;
-					g_CurrentDialogue.current->state = 0;
-					return;
-				}
+				//if (g_CurrentDialogue.current == NULL) {
+				//	g_CurrentDialogue.current = g_CurrentDialogue.root;
+				//	g_CurrentDialogue.current->state = 0;
+				//	return;
+				//}
 
-				// Skip Typing
-				int state = g_CurrentDialogue.current->state;
-				if (state > 0) {
-					g_CurrentDialogue.current->state = -1;
-					return;
-				}
+				//// Skip Typing
+				//int state = g_CurrentDialogue.current->state;
+				//if (state > 0) {
+				//	g_CurrentDialogue.current->state = -1;
+				//	return;
+				//}
 
-				// DEBUG: Skip to next node
-				if (!done_next && state < 0) {
-					g_CurrentDialogue.current = Dialogue_LoadNode(__curr_dia_file, 0x0002);
-					done_next = true;
-					return;
-				}
+				//// DEBUG: Skip to next node
+				//if (!done_next && state < 0) {
+				//	g_CurrentDialogue.current = Dialogue_LoadNode(__curr_dia_file, 0x0002);
+				//	done_next = true;
+				//	return;
+				//}
 
-				// Done, go back to start
-				Dialogue_FreeNode(g_CurrentDialogue.current);
-				g_CurrentDialogue.current = NULL;
-				done_next = false;
+				//// Done, go back to start
+				//Dialogue_FreeNode(g_CurrentDialogue.current);
+				//g_CurrentDialogue.current = NULL;
+				//done_next = false;
 			}
 		} break;
 
@@ -250,7 +249,7 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 	int written = TTFText_Draw_Box((TTFText_Box){
 		DIA_BOX_POS_X, DIA_BOX_POS_Y,
 		DIA_BOX_COLS, DIA_BOX_ROWS,
-		CLR_SPECIAL, node->state,
+		CLR_TEXT_NORM, node->state,
 		node->text
 	});
 

@@ -36,8 +36,14 @@ void Sound_Init() {
 		return;
 	}
 
-	// TODO: Set from user prefs
-	Mix_MasterVolume( 0.30f * MIX_MAX_VOLUME );
+	// Set user preferences
+	float master_vol = 0.3f;
+	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &master_vol, sizeof(master_vol));
+	if (succ < 0) {
+		Log_Message(LOG_WARNING, "Problem reading user volume preference; Defaulting to 30%%...\n");
+		master_vol = 0.03f;
+	}
+	Mix_MasterVolume(master_vol * MIX_MAX_VOLUME);
 
 	Log_Message(LOG_INFO, "Successfully Initialised Sound System!");
 }

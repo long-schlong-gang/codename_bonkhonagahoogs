@@ -20,6 +20,10 @@
 #define TTFTEXT_FONT_FILE "assets/fonts/generale.otf"
 #define TTFTEXT_FONT_SIZE 34
 
+// Depends on TTFTEXT_FONT_SIZE; if you change it, re-calc glyph size
+#define TTFTEXT_GLYPH_W 25
+#define TTFTEXT_GLYPH_H 41
+
 #define TTFTEXT_BOX_PADDING 10
 #define TTFTEXT_BOX_BORDER_WIDTH 5
 
@@ -58,7 +62,8 @@ int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint);
 //	Renders a string at the given coordinates
 //	
 //	Takes a UTF-8 string
-//	TODO: Custom escapes?
+//	TODO: Provide optional rect pointer; If w/h set, limit text to given size, else (0/0), set w/h to final size
+//	TODO: Custom escapes? (General escape handler?)
 void TTFText_RenderText(int x, int y, PaletteColour clr, char *str);
 
 //	Renders a text box with the given size and handles wrapping
@@ -70,6 +75,7 @@ void TTFText_RenderText(int x, int y, PaletteColour clr, char *str);
 //	If it's negative, the whole text is drawn all at once
 //	
 //	Returns how many characters were drawn; -1 once it's rendered them all
+//	TODO: Custom escapes!
 int TTFText_Draw_Box(TTFText_Box txt);
 
 #endif

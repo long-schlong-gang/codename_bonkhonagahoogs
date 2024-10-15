@@ -3,7 +3,12 @@
 
 static TTF_Font *__font = NULL;
 static SDL_Texture *__glyph_cache[95]; // Cache of just printable ASCII glyphs
+
+#ifndef TTFTEXT_GLYPH_W
 static SDL_Rect __dst_rect = { 0, 0, 0, 0 };
+#else
+static SDL_Rect __dst_rect = { 0, 0, TTFTEXT_GLYPH_W, TTFTEXT_GLYPH_H };
+#endif
 
 
 void TTFText_Init() {
@@ -47,10 +52,17 @@ int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint) {
 			return -1;
 		}
 
+		#ifndef TTFTEXT_GLYPH_W
 		if (__dst_rect.w < 1) {
 			__dst_rect.w = surf->w;
 			__dst_rect.h = surf->h;
+
+			// DEBUG:
+			char msg[256];
+			SDL_snprintf(msg, 256, "Rendered Glyph Size: %i x %i px", surf->w, surf->h);
+			Log_Message(LOG_DEBUG, msg);
 		}
+		#endif
 
 		tex = SDL_CreateTextureFromSurface(g_renderer, surf);
 		SDL_FreeSurface(surf);
@@ -142,30 +154,29 @@ int TTFText_Draw_Box(TTFText_Box txt) {
 	});
 
 	Colours_SetRenderer(CLR_TXTBOX_BRDR);
-	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		txt.x,
-		txt.y,
-		txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
-		TTFTEXT_BOX_BORDER_WIDTH
-	});
-	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		txt.x,
-		txt.y,
-		TTFTEXT_BOX_BORDER_WIDTH,
-		txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
-	});
-	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		txt.x + txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
-		txt.y,
-		TTFTEXT_BOX_BORDER_WIDTH,
-		txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
-	});
-	SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-		txt.x,
-		txt.y + txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
-		txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
-		TTFTEXT_BOX_BORDER_WIDTH,
-	});
+	SDL_RenderFillRects(g_renderer, (struct SDL_Rect[4]){
+		{
+			txt.x,
+			txt.y,
+			txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+			TTFTEXT_BOX_BORDER_WIDTH
+		}, {
+			txt.x,
+			txt.y,
+			TTFTEXT_BOX_BORDER_WIDTH,
+			txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		}, {
+			txt.x + txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
+			txt.y,
+			TTFTEXT_BOX_BORDER_WIDTH,
+			txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+		}, {
+			txt.x,
+			txt.y + txt.rows*__dst_rect.h + 2*TTFTEXT_BOX_PADDING + TTFTEXT_BOX_BORDER_WIDTH,
+			txt.cols*__dst_rect.w + 2*TTFTEXT_BOX_PADDING + 2*TTFTEXT_BOX_BORDER_WIDTH,
+			TTFTEXT_BOX_BORDER_WIDTH,
+		}
+	}, 4);
 
 	// Just draw the box
 	if (txt.charcount == 0) return 0;

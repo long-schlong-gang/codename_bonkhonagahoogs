@@ -7,7 +7,7 @@
 
 // TODO: Change Engine/Game Name
 #define ENGINE "Proj. BHGH"
-#define VERSION "0.1.0"
+#define VERSION "0.1.1"
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 1024
 
@@ -55,6 +55,7 @@ int main(int argc, char* args[]) {
 	Sprite_Init(); Events_Init(5);
 	UserData_Init(); TTFText_Init();
 	Sound_Init();
+
 	Log_Message(LOG_INFO, "------[ GAME START ]------");
 
 	// Load Scenes

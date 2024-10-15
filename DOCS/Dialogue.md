@@ -63,16 +63,36 @@ Note: `0x1B` is `ESC` in ASCII
 **Presentation Escape Sequence List**
 | Escape Sequence | Effect |
 |-----------------|--------|
-| `0x1B 00`       | Reset any previous style changes |
-| `0x1B 01 pp pp` | Set text colour after sequence to the palette colour `0xpppp` |
-| `0x1B 02 tt`    | Set text speed (delay) to `tt` ms per char (50 default) |
-| `0x1B 03 tt`    | Wait `tt` ms before proceeding |
+| `0x1B 00`       | Reset text to usual colour |
+| `0x1B 01`       | Emphasise following text; Equivalent to `0x1B 02 00 05` (Set colour to CLR_TEXT_EMPH) |
+| `0x1B 02 pp pp` | Set text colour after sequence to the palette colour `0xpppp` |
+| `0x1B 03 tt`    | Set text speed (delay) to `tt` ms per char (50 default) |
+| `0x1B 04 tt`    | Wait `tt` ms before proceeding |
 | `0x1B 10 cs`    | Set character sprite/pose; `s` is the pose/sprite number (0 = Not present); `c` is the character ID |
 | `0x1B 11 cx`    | Set character position; `x` is the signed horizontal position (see below); `c` is the character ID |
 | `0x1B 20`       | Pause currently playing music |
 | `0x1B 21`       | Unpause/Resume music |
 | `0x1B 22 mm mm` | Change music to track with ID `0xmmmm` |
 | `0x1B 2F ss ss` | Play sound effect with ID `0xssss` |
+
+// Put non-text escapes in separate kind of "script" string??
+// Maybe separated with special ASCII control characters?
+// --> Avoid using special ASCII where possible, as it might cause issues when transmitting dialogue files!
+// Alternative: You've spent that time getting UTF-8 working; use special characters
+// That won't be displayed/You won't use otherwise: How about:
+//	
+//	"*dialogue with story implications that changes the mood of the scene*"
+//	"𝄆0001𝄇" --> Start playing music 0x0001
+//	"𝄞\x0001" --> Start playing music 0x0001, (♫ ?)
+//	"𝆓" --> Decrescendo; Fade music out
+//	"ᛗ" --> M; music?
+//	"※\x0001" --> Explosion; play sound effect 0x0001?
+//	"⏳\x10" --> Wait 10ms
+//	"☺\x13" --> Set character 1's expression/pose to nr. 3
+//	"Simple ⚑FLAGS⚐ to indicate emphasis?"
+//	"✍\x0000" --> Set colour
+//	"*...*"
+//	See Unicode Block 0x25A0 and up for more
 
 **Special Escape Sequence List**
 | Escape Sequence | Effect |
@@ -97,20 +117,32 @@ Question????????:
 
 ## File Format
 Each node of dialogue is stored as a single datablock.
+The datablock's DBID is just the Node-ID
 
 A dialogue file has a single header block as the first block in the file.
-This contains following fields: (little-endian)
+This contains following fields: (little-endian (System native))
 
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
 | `0x0000`  | 16-Bit, 2B | Root Node block ID |
 
-Each node block contains the following fields: (little-endian)
+Each node block contains the following fields: (little-endian (System native))
 
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
-| `0x0000`  | (var.), nB | UTF-8 Encoded Dialogue Text; `NULL` Terminated |
+| `0x0000`  | 8-Bit,  1B | Length of following Dialogue Text in Bytes |
+| `0x0001`  | 24-Bit, 3B | Reserved Header bytes for extra flags |
+| `0x0004`  | (var.), nB | UTF-8 Encoded Dialogue Text |
+
+After the dialogue text comes an array of possible responses;
+if it only consists of a single Node-ID, this is considered the
+next page.
+
+| Byte Pos. | Length (B) | Field Description |
+|-----------|------------|-------------------|
+| `0x0000`  | 16-Bit, 2B | Node-/Block-ID this response leads to |
 
 Dialogues are a separate file?
 ...then master file of available dialogues?
+YES!
 
