@@ -131,7 +131,7 @@ Each node block contains the following fields: (little-endian (System native))
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
 | `0x0000`  | 8-Bit,  1B | Length of following Dialogue Text in Bytes |
-| `0x0001`  | 24-Bit, 3B | Reserved Header bytes for extra flags |
+| `0x0001`  | 24-Bit, 3B | Reserved Header bytes for extra flags; Ignored |
 | `0x0004`  | (var.), nB | UTF-8 Encoded Dialogue Text |
 
 After the dialogue text comes an array of possible responses;
@@ -140,7 +140,11 @@ next page.
 
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
-| `0x0000`  | 16-Bit, 2B | Node-/Block-ID this response leads to |
+| `0x0000`  | 16-Bit, 2B | Node-/Block-ID this Response leads to; If it's 0x0000, that ends the dialogue |
+| `0x0001`  | 8-Bit,  1B | Length of following Response text in bytes |
+| `0x0002`  | 8-Bit,  1B | Reserved for Response Flags |
+| `0x0004`  | (var.), nB | Response Text |
+
 
 Dialogues are a separate file?
 ...then master file of available dialogues?
