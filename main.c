@@ -1,13 +1,13 @@
 //	
 //	PROJECT BONKHONAGAHOOGS
 //	
-//	Source Code v0.1.0
+//	Source Code v0.2.0
 //	By Olorin
 //	
 
 // TODO: Change Engine/Game Name
 #define ENGINE "Proj. BHGH"
-#define VERSION "0.1.1"
+#define VERSION "0.2.0"
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 1024
 
@@ -16,16 +16,17 @@
 #include <log.h>
 #include <util.h>
 #include <screen.h>
-#include <sprite.h>
 #include <events.h>
-#include <menu.h>
 
 #include "src/userdata.h"
 #include "src/ttf_text.h"
 #include "src/sound.h"
+#include "src/pix.h"
 
 //	Include Scenes
 #include "scn_title.c"
+#include "scn_dialogue.c"
+#include "scn_snd_test.c"
 
 
 int main(int argc, char* args[]) {
@@ -52,14 +53,16 @@ int main(int argc, char* args[]) {
 
 	// TODO: Change Window Title
 	Screen_Init(ENGINE " v" VERSION, SCREEN_WIDTH, SCREEN_HEIGHT);
-	Sprite_Init(); Events_Init(5);
+	Events_Init(10);
 	UserData_Init(); TTFText_Init();
-	Sound_Init();
+	Sound_Init(); Pix_Init();
 
 	Log_Message(LOG_INFO, "------[ GAME START ]------");
 
 	// Load Scenes
 	Scene_Register(scn_title, "title");
+	Scene_Register(scn_dialogue, "dia");
+	Scene_Register(scn_soundtest, "snd");
 	Scene_Set("title");
 
 	// Main Game Loop
@@ -70,11 +73,12 @@ int main(int argc, char* args[]) {
 	// Termination
 	Log_Message(LOG_INFO, "");
 	Log_Message(LOG_INFO, "------[ TIDYING UP ]------");
+	Pix_Term();
 	Sound_Term();
 	TTFText_Term(); UserData_Term();
-	Sprite_Term(); Screen_Term();
-	SDL_Quit();
-	Log_Message(LOG_INFO, "All done; Goodbye!");
+	Screen_Term();
 
+	Log_Message(LOG_INFO, "All done; Goodbye :)");
+	SDL_Quit();
 	return 0;
 }

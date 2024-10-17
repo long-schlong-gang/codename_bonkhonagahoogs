@@ -60,6 +60,7 @@ Menel_TextButton *Menel_TextBtn_Create(SDL_Rect shape, char *text, Menel_Callbac
 	btn->on_highlight = on_highlight;
 	btn->on_select = on_select;
 	btn->text = text;
+	btn->user_data = NULL;
 
 	// No box size defined; calculate it
 	if (shape.w == 0 || shape.h == 0) {
@@ -99,7 +100,7 @@ void Menel_TextBtn_HandleEvent(Menel_TextButton *btn, SDL_Event event) {
 
 			if (SDL_PointInRect(&(SDL_Point){ event.motion.x, event.motion.y }, &test_box)) {
 				btn->state = MENEL_BTN_HIGHLIGHTED;
-				if (btn->on_highlight != NULL) btn->on_highlight(btn);
+				if (btn->on_highlight != NULL) btn->on_highlight(btn->user_data);
 			} else {
 				btn->state = MENEL_BTN_NORMAL;
 			}
@@ -110,9 +111,8 @@ void Menel_TextBtn_HandleEvent(Menel_TextButton *btn, SDL_Event event) {
 				|| !SDL_PointInRect(&(SDL_Point){ event.button.x, event.button.y }, &test_box)
 			) return;
 
-			btn->state = MENEL_BTN_SELECTED;
-			if (btn->on_select != NULL) btn->on_select(btn);
-			btn->state = MENEL_BTN_HIGHLIGHTED;
+			//btn->state = MENEL_BTN_SELECTED;
+			if (btn->on_select != NULL) btn->on_select(btn->user_data);
 		} return;
 
 		case SDL_KEYUP: {
@@ -120,9 +120,8 @@ void Menel_TextBtn_HandleEvent(Menel_TextButton *btn, SDL_Event event) {
 
 			Input_Type in = Binding_ConvKeyCode(event.key.keysym.sym);
 			if (in == INPUT_SELECT) {
-				btn->state = MENEL_BTN_SELECTED;
-				if (btn->on_select != NULL) btn->on_select(btn);
-				btn->state = MENEL_BTN_HIGHLIGHTED;
+				//btn->state = MENEL_BTN_SELECTED;
+				if (btn->on_select != NULL) btn->on_select(btn->user_data);
 			}
 		} return;
 	}
@@ -136,7 +135,7 @@ void Menel_TextBtn_Draw(Menel_TextButton *btn) {
 		case MENEL_BTN_NORMAL: break;
 		case MENEL_BTN_DISABLED: text_clr = CLR_BTN_BLOCKED; break;
 		case MENEL_BTN_HIGHLIGHTED: text_clr = CLR_BTN_SELECT; break;
-		case MENEL_BTN_SELECTED: text_clr = CLR_BTN_SELECT; break;
+		//case MENEL_BTN_SELECTED: text_clr = CLR_BTN_SELECT; break;
 	}
 
 	if (btn->state == MENEL_BTN_HIGHLIGHTED) {
@@ -209,6 +208,13 @@ void Menel_TBtnArr_Destroy(Menel_TextButtonArray *arr) {
 	SDL_free(arr);
 }
 
+void Menel_TBtnArr_SetAllState(Menel_TextButtonArray *arr, Menel_Btn_State state) {
+	if (arr == NULL) return;
+	for (int i=0; i<arr->btn_count; i++) {
+		arr->btns[i].state = state;
+	}
+}
+
 void Menel_TBtnArr_ClearSelection(Menel_TextButtonArray *arr) {
 	if (arr == NULL) return;
 	for (int i=0; i<arr->btn_count; i++) {
@@ -227,6 +233,7 @@ void Menel_TBtnArr_MoveSelectionWrap(Menel_TextButtonArray *arr, int move) {
 	if (new < 0) new = 0;
 	else new += move;
 
+	int loop_count = 0;
 	int corr = 0;
 	do {
 		new += corr;
@@ -237,7 +244,13 @@ void Menel_TBtnArr_MoveSelectionWrap(Menel_TextButtonArray *arr, int move) {
 
 		// Keep going in the same direction if the current button is disabled
 		corr = (move < 0) ? -1 : 1;
-	} while (arr->btns[new].state == MENEL_BTN_DISABLED);
+		loop_count++;
+	} while (arr->btns[new].state == MENEL_BTN_DISABLED && loop_count < 1000);
+
+	if (loop_count >= 1000) {
+		Log_Message(LOG_WARNING, "TextButton Movement Algorithm looped too many times (>= 1000)");
+		return;
+	}
 
 	arr->sel_index = new;
 	Menel_TBtnArr_ClearSelection(arr);

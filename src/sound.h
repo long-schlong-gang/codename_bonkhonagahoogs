@@ -28,8 +28,9 @@
 
 typedef enum {
 	SFX_DIALOGUE_BEEP,
+	SFX_TEST_1,
 } Sound_Effect;
-#define SFX_COUNT 1
+#define SFX_COUNT 2
 
 typedef enum {
 	OST_TITLE,

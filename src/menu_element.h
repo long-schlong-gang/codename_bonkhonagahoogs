@@ -28,7 +28,7 @@ typedef enum {
 	MENEL_BTN_NORMAL,
 	MENEL_BTN_DISABLED,
 	MENEL_BTN_HIGHLIGHTED,
-	MENEL_BTN_SELECTED,
+	//MENEL_BTN_SELECTED,
 } Menel_Btn_State;
 
 //	TODO: Make generic element with union?
@@ -42,7 +42,7 @@ typedef enum {
 
 //	Callback triggered when an interactive element moves into a new state
 //	
-typedef void (*Menel_Callback)(void *element);
+typedef void (*Menel_Callback)(void *udata);
 
 typedef struct {
 	//void (*draw_element)(void *btn);
@@ -51,6 +51,7 @@ typedef struct {
 	SDL_Rect bounding_box;
 	Menel_Callback on_highlight;
 	Menel_Callback on_select;
+	void *user_data;
 	char *text;
 } Menel_TextButton;
 
@@ -120,6 +121,10 @@ Menel_TextButtonArray *Menel_TBtnArr_Create(int num, Menel_TextButton *buttons);
 //	Frees a button
 //	
 void Menel_TBtnArr_Destroy(Menel_TextButtonArray *arr);
+
+//	Sets the state of all the buttons in the array
+//	
+void Menel_TBtnArr_SetAllState(Menel_TextButtonArray *arr, Menel_Btn_State state);
 
 //	Clears all buttons in the array of the "selected" or "highlighted" state
 //	

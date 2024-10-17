@@ -190,10 +190,18 @@ int TTFText_Draw_Box(TTFText_Box txt) {
 			Uint32 codepoint = __UTF8_NextCodepoint(txt.str, &next);
 			if (codepoint == 0) return -1;
 
-			if (codepoint == '\n') {
-				xb = -1;
-				yb++;
-				continue;
+			switch (codepoint) {
+				case '\n': {
+					xb = -1;
+					yb++;
+				} continue;
+				//case 0x1B: {
+
+				//	Uint8 code = __UTF8_NextCodepoint(txt.str, &next);
+				//	switch (code) {
+				//	}
+
+				//} continue;
 			}
 
 			TTFText_RenderGlyph(

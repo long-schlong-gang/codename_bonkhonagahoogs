@@ -6,6 +6,10 @@
 //	Displaying character portraits and loading/displaying
 //	Interactive dialogue
 //	
+//	To-Do:
+//	 - Add "Pause" function that stops character counting and disables response buttons
+//	 - Add ability to set special button colours for the exit/next buttons
+//	
 //	Nice-To-Have:
 //	 - Rewrite with custom arena allocator for dialogue nodes & strings
 
@@ -15,6 +19,7 @@
 #include <screen.h>
 #include <log.h>
 
+#include "menu_element.h"
 #include "ttf_text.h"
 #include "colours.h"
 #include "sound.h"
@@ -23,7 +28,10 @@
 ////	Constants
 #define DIALOGUE_FILENAME "assets/txt/test_dialogue.dbf"
 #define DIA_FILE_HEADER_DBID 0x0000
-#define DIA_FILE_HEADER_SIZE 2
+#define DIA_FILE_HEADER_SIZE 4
+#define DIA_MAX_RESPONSES 16
+#define DIA_DEF_RESP_EXIT "Goodbye"
+#define DIA_DEF_RESP_NEXT "Next" //"☞" perhaps???
 
 #define DIA_BOX_POS_X	50
 #define DIA_BOX_POS_Y	600
@@ -48,12 +56,16 @@ typedef struct {
 typedef struct {
 	char *text;
 	int state; // 0: Don't show; >0: typing; <0: Finished
+	Dialogue_Response *responses;
+	int num_responses;
 } Dialogue_Node;
 
 typedef struct {
-	Dialogue_Node *root;
+	//Dialogue_Node *root; // If reincluded: Copy it
+	NodeID root_id;
 	Dialogue_Node *current;
-	int state;
+	int next_node; // -1: Do nothing; 0: End Dialogue; >0: Go to this node on next event call
+	Menel_TextButtonArray *response_buttons;
 } Dialogue_Tree;
 
 
@@ -71,6 +83,14 @@ void Dialogue_LoadTree(char *filename);
 //	Unloads the current dialogue tree
 //	
 void Dialogue_UnloadTree();
+
+//	Sets the current node to the root
+//	
+void Dialogue_Start();
+
+//	Sets the current node to the node of the given ID
+//	
+void Dialogue_GoToNode(NodeID node);
 
 //	Handles dialogue-system events
 //	

@@ -9,12 +9,13 @@ Mix_Music *g_QueuedMusic = NULL;
 
 static const char *__sfx_filenames[SFX_COUNT] = {
 	"assets/snd/dit.ogg",		// Dialogue Beep
+	"assets/snd/fast_up.ogg",	// Fast Arp. Up
 };
 
 static const char *__ost_filenames[OST_COUNT] = {
 	"assets/snd/title.mp3",		// Title Screen Theme
-	"assets/snd/arabic_nokia.mp3",
 	"assets/snd/baka.mp3",
+	"assets/snd/arabic_nokia.mp3",
 	"assets/snd/km_blues.mp3",
 };
 
@@ -55,7 +56,7 @@ void Sound_Term() {
 }
 
 void Sound_SFX_Prepare(Sound_Effect sfx) {
-	if (sfx < 0 || sfx > SFX_COUNT) {
+	if (sfx < 0 || sfx >= SFX_COUNT) {
 		char msg[128];
 		SDL_snprintf(msg, 128, "Tried to prepare invalid sound effect (0x%04X)", sfx);
 		Log_Message(LOG_WARNING, msg);
@@ -74,7 +75,7 @@ void Sound_SFX_Prepare(Sound_Effect sfx) {
 }
 
 void Sound_SFX_Play(Sound_Effect sfx, int channel) {
-	if (sfx < 0 || sfx > SFX_COUNT) {
+	if (sfx < 0 || sfx >= SFX_COUNT) {
 		char msg[128];
 		SDL_snprintf(msg, 128, "Tried to play invalid sound effect (0x%04X)", sfx);
 		Log_Message(LOG_WARNING, msg);
@@ -93,7 +94,7 @@ void Sound_SFX_Play(Sound_Effect sfx, int channel) {
 }
 
 void Sound_SFX_Clear(Sound_Effect sfx) {
-	if (sfx < 0 || sfx > SFX_COUNT) return;
+	if (sfx < 0 || sfx >= SFX_COUNT) return;
 	if (g_SoundEffects[sfx] == NULL) return;
 	Mix_FreeChunk(g_SoundEffects[sfx]);
 	g_SoundEffects[sfx] = NULL;
@@ -108,7 +109,7 @@ void Sound_SFX_ClearAll() {
 }
 
 void Sound_OST_QueueTrack(Sound_Music ost) {
-	if (ost < 0 || ost > OST_COUNT) {
+	if (ost < 0 || ost >= OST_COUNT) {
 		char msg[128];
 		SDL_snprintf(msg, 128, "Tried to queue invalid music track (0x%04X)", ost);
 		Log_Message(LOG_WARNING, msg);

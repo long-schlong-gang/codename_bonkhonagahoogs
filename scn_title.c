@@ -1,28 +1,28 @@
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <screen.h>
 #include <scene.h>
 
 #include "src/menu_element.h"
 #include "src/ttf_text.h"
-#include "src/dialogue.h"
-#include "src/sound.h"
+#include "src/pix.h"
 
 
-static bool redraw = true;
-
-static int music = 0;
-static SDL_Texture *eruya = NULL;
-static Menel_TextButtonArray *buttons = NULL;
+static char *next_scene = NULL;
+static Menel_TextButtonArray *menu_buttons = NULL;
 
 
 //	Menu Option Callbacks
-static void __cb_pause_music(void *el) {
-	Sound_OST_TogglePause(50);
+static void __cb_dialogue_demo(void *el) {
+	next_scene = "dia";
+}
+
+static void __cb_sound_demo(void *el) {
+	next_scene = "snd";
 }
 
 static void __cb_hello(void *el) {
+	Log_Message(LOG_WARNING, "Hello, world!");
 	puts("Hello, world!");
 	fflush(stdout);
 }
@@ -34,109 +34,81 @@ static void __cb_exit(void *el) {
 
 //	Scene Initialisation
 void scn_title_setup() {
-	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
-	eruya = IMG_LoadTexture(g_renderer, "assets/img/eruya.jpg");
-
-	buttons = Menel_TBtnArr_Create(3, (Menel_TextButton[3]){
+	menu_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
 		{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 400, 50, 0, 0 },
+			.bounding_box = { 50, 300, 0, 0 },
 			.on_highlight = NULL,
-			.on_select = &__cb_hello,
-			.text = "Hellö", 
-		},{
-			.state = MENEL_BTN_DISABLED,
-			.bounding_box = { 400, 150, 0, 0 },
-			.on_highlight = NULL,
-			.on_select = &__cb_pause_music,
-			.text = "Pause Music", 
+			.on_select = &__cb_dialogue_demo,
+			.user_data = NULL,
+			.text = "Dialogue System Demo", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 400, 250, 0, 0 },
+			.bounding_box = { 50, 350, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_sound_demo,
+			.user_data = NULL,
+			.text = "Sound System Demo", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 400, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_hello,
+			.user_data = NULL,
+			.text = "Hellö", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 450, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_exit,
+			.user_data = NULL,
 			.text = "Göödbyé!", 
 		},
 	});
-	if (buttons == NULL) {
+	if (menu_buttons == NULL) {
 		Log_Message(LOG_ERROR, "Failed to make buttons");
 		g_isRunning = false;
 	}
 
-	//Dialogue_LoadTree(DIALOGUE_FILENAME);
-
-	Sound_SFX_Prepare(SFX_DIALOGUE_BEEP);
-	//Sound_OST_QueueTrack(OST_TEST_1);
-	//Sound_OST_FadeNext(500);
+	Pix_Load(PIX_TIT_SMILE);
 }
 
 
 //	Scene Termination
 void scn_title_teardown() {
-	Sound_OST_ClearQueue();
-	Sound_OST_FadeNext(500);
-	Sound_SFX_ClearAll();
-
-	//Dialogue_UnloadTree();
-
-	Menel_TBtnArr_Destroy(buttons);
-
-	SDL_DestroyTexture(eruya);
-	IMG_Quit();
+	Pix_Clear(PIX_TIT_SMILE);
+	Menel_TBtnArr_Destroy(menu_buttons);
 }
 
 
 //	Scene Event Handler
 void scn_title_handle_events(SDL_Event evt) {
 	if (evt.type == SDL_QUIT) g_isRunning = false;
-	//Binding_HandleEvent(evt);
 
-	//Dialogue_HandleEvents(evt);
+	Menel_TBtnArr_HandleEvent(menu_buttons, evt);
 
-	Menel_TBtnArr_HandleEvent(buttons, evt);
-
-	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_q) {
-		Sound_OST_ClearQueue();
-		Sound_OST_FadeNext(1000);
+	if (next_scene != NULL) {
+		Scene_Set(next_scene);
+		next_scene = NULL;
 	}
-
-	if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_F2) {
-		if (music == 0) {
-			music = 1;
-			Sound_OST_QueueTrack(OST_TEST_2);
-		} else if (music == 1) {
-			music = 2;
-			Sound_OST_QueueTrack(OST_TEST_3);
-		} else if (music == 2) {
-			music = 0;
-			Sound_OST_QueueTrack(OST_TEST_1);
-		}
-
-		Sound_OST_FadeNext(2500);
-	}
-
-	redraw = true;
 }
 
 
 //	Scene Draw Calls
 void scn_title_draw_frame() {
-	if (!redraw) return;
-
 	Colours_SetRenderer(CLR_WINDOW_BG);
 	SDL_RenderClear(g_renderer);
 
-	//TTFText_RenderGlyph(10, 10, CLR_SPECIAL, 0x00FE); // Thorn
-	//TTFText_RenderText(50, 50, 26, "Héllö, würld!");
+	Pix_Draw(PIX_TIT_SMILE, 50, 50, -1, -1);
 
-	SDL_RenderCopy(g_renderer, eruya, NULL, &(struct SDL_Rect){
-		50, 50,
-		339, 859,
+	TTFText_Draw_Box((TTFText_Box){
+		50, 200,
+		25, 1,
+		CLR_SPECIAL, -1,
+		" Project Bonkhonagahoogs"
 	});
 
-	Menel_TBtnArr_Draw(buttons);
-
-	//Dialogue_DrawAll();
+	Menel_TBtnArr_Draw(menu_buttons);
 }
 
 
@@ -147,11 +119,3 @@ Scene scn_title = {
 	.handle_events = &scn_title_handle_events,
 	.draw_frame = &scn_title_draw_frame,
 };
-
-//static void __cb_debug(void *el) {
-//	puts("Button States:");
-//	printf("  btn_hello: [%s]\n", (btn_hello->state == 0) ? "NORMAL" : ((btn_hello->state == 1) ? "DISABLED" : ((btn_hello->state == 2) ? "HIGHLIGHTED" : "SELECTED" )) );
-//	printf("  btn_pause: [%s]\n", (btn_pause->state == 0) ? "NORMAL" : ((btn_pause->state == 1) ? "DISABLED" : ((btn_pause->state == 2) ? "HIGHLIGHTED" : "SELECTED" )) );
-//	printf("  btn_exit: [%s]\n", (btn_exit->state == 0) ? "NORMAL" : ((btn_exit->state == 1) ? "DISABLED" : ((btn_exit->state == 2) ? "HIGHLIGHTED" : "SELECTED" )) );
-//	fflush(stdout);
-//}

@@ -1,6 +1,6 @@
 # CODENAME: "BONKHONAGAHOOGS"
 
-**Current Version:** *0.1.1*
+**Current Version:** *0.2.0*
 
 ## Engine Feature Progress:
 ```
@@ -9,10 +9,11 @@
  - Colour Palette & player colours System	[||||||||  ]
  - Sound Effect/Music System				[||||||||| ]
  - Interactive Element System (Eg. Buttons)	[||||||    ]
- - Dialogue Tree System						[|||-----  ]
+ - Dialogue Tree System						[|||||||   ]
+ - Basic Image Management System			[||||||||| ]
  - 2D-World View/Interactions System		[          ]
  - Cutscene System (Very Basic)				[          ]
- - Polish & Bug-Fixes						[          ]
+ - Polish & Bug-Fixes						[|         ]
  - VR Integration & Network Multiplayer		[          ]
 ```
 
@@ -22,7 +23,7 @@
  - Dialogue Written		[          ]
  - Dialogue Scripted	[          ]
  - SFX Created			[||        ]
- - Music Composed		[          ]
+ - Music Composed		[|         ]
  - Level Layout Set Up	[          ]
  - In-World Interactions[          ]
  - Cut-Scene Art Made	[          ]

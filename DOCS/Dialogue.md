@@ -125,14 +125,15 @@ This contains following fields: (little-endian (System native))
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
 | `0x0000`  | 16-Bit, 2B | Root Node block ID |
+| `0x0002`  | 16-Bit, 2B | Reserved for future use |
 
 Each node block contains the following fields: (little-endian (System native))
 
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
-| `0x0000`  | 8-Bit,  1B | Length of following Dialogue Text in Bytes |
+| `0x0000`  | 8-Bit,  1B | Length of following Dialogue Text in Bytes --> `len` |
 | `0x0001`  | 24-Bit, 3B | Reserved Header bytes for extra flags; Ignored |
-| `0x0004`  | (var.), nB | UTF-8 Encoded Dialogue Text |
+| `0x0004`  | (var.), nB | UTF-8 Encoded Dialogue Text; `len` bytes long exactly |
 
 After the dialogue text comes an array of possible responses;
 if it only consists of a single Node-ID, this is considered the
@@ -141,9 +142,9 @@ next page.
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
 | `0x0000`  | 16-Bit, 2B | Node-/Block-ID this Response leads to; If it's 0x0000, that ends the dialogue |
-| `0x0001`  | 8-Bit,  1B | Length of following Response text in bytes |
-| `0x0002`  | 8-Bit,  1B | Reserved for Response Flags |
-| `0x0004`  | (var.), nB | Response Text |
+| `0x0002`  | 8-Bit,  1B | Length of following Response text in bytes --> `len` |
+| `0x0003`  | 8-Bit,  1B | Reserved for Response Flags |
+| `0x0004`  | (var.), nB | Response Text; exactly `len` bytes |
 
 
 Dialogues are a separate file?

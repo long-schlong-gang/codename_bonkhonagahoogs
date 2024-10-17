@@ -5,6 +5,8 @@
 //	Handles Storage and retrieval
 //	of user data stored locally.
 //	
+//	TODO:
+//	 - Find out why it can't write sometimes and why it crashes
 
 #include <stdio.h>
 #include <datablock.h>
