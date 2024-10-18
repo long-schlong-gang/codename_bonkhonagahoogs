@@ -66,4 +66,13 @@ int UserData_Get(Uint16 type, int num, void *data, size_t size);
 //	Returns -3 if the file can't be overwritten; logs an error
 int UserData_Set(Uint16 type, int num, void *data, size_t size);
 
+//	!!! Utility that sets the binding internally and writes to userdata
+//	
+//	NOT IMPLEMENTED! DON'T USE!
+//	
+//	Note: This also clears any bindings that use the same keycode `kc`
+//	Returns if Binding or UserData hasn't been initialised.
+//	Also returns if either input is invalid (`INPUT_NONE` or `SDLK_UNKNOWN`)
+void UserData_SetBinding(Input_Type in, SDL_KeyCode kc);
+
 #endif

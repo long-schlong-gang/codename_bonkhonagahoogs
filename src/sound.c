@@ -37,14 +37,22 @@ void Sound_Init() {
 		return;
 	}
 
-	// Set user preferences
-	float master_vol = 0.3f;
-	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &master_vol, sizeof(master_vol));
+	// Set from user preferences
+	float sfx_vol = 0.20f;
+	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &sfx_vol, sizeof(sfx_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user volume preference; Defaulting to 30%%...\n");
-		master_vol = 0.03f;
+		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 20%%...\n");
+		sfx_vol = 0.20f;
 	}
-	Mix_MasterVolume(master_vol * MIX_MAX_VOLUME);
+	Mix_MasterVolume(sfx_vol * MIX_MAX_VOLUME);
+
+	float ost_vol = 0.20f;
+	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &ost_vol, sizeof(ost_vol));
+	if (succ < 0) {
+		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 20%%...\n");
+		ost_vol = 0.20f;
+	}
+	Mix_VolumeMusic(ost_vol * MIX_MAX_VOLUME);
 
 	Log_Message(LOG_INFO, "Successfully Initialised Sound System!");
 }
@@ -107,6 +115,12 @@ void Sound_SFX_ClearAll() {
 		g_SoundEffects[i] = NULL;
 	}
 }
+
+void Sound_SFX_SetVolume(float vol) {
+	Mix_MasterVolume(vol * MIX_MAX_VOLUME);
+	UserData_Set(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_SFX_VOL, &vol, sizeof(vol));
+}
+
 
 void Sound_OST_QueueTrack(Sound_Music ost) {
 	if (ost < 0 || ost >= OST_COUNT) {
@@ -174,4 +188,9 @@ void Sound_OST_TogglePause(int ms) {
 		Mix_PauseMusic();
 		Mix_VolumeMusic(0);
 	}
+}
+
+void Sound_OST_SetVolume(float vol) {
+	Mix_VolumeMusic(vol * MIX_MAX_VOLUME);
+	UserData_Set(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_OST_VOL, &vol, sizeof(vol));
 }

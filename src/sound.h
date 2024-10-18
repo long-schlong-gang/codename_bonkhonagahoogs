@@ -22,6 +22,8 @@
 
 #define SOUND_SAMPLE_FREQ 44100
 #define SOUND_CHUNK_SIZE 2048
+#define SOUND_UDATA_IDX_SFX_VOL 0	// Index of the block containing the SFX vol level
+#define SOUND_UDATA_IDX_OST_VOL 1
 
 
 ////	Types
@@ -79,6 +81,16 @@ void Sound_SFX_Clear(Sound_Effect sfx);
 //	TODO: Overhaul audio system; this is weird, I think
 void Sound_SFX_ClearAll();
 
+//	Sets the volume for the SFX channel
+//	
+//	NOTE:
+//	At the moment, both SFX and OST use the same volume
+//	This single value will be written to the settings file.
+//	Both this and `Sound_OST_SetVolume()` Set both levels.
+//	
+//	Writes new value to the user preferences file
+void Sound_SFX_SetVolume(float vol);
+
 //	Loads a music track and prepares it to start playing
 //	
 //	If there was already a song in the queue it is cleared
@@ -103,6 +115,11 @@ void Sound_OST_FadeNext(int ms);
 //	TODO: Make this less shit, if possible
 //	It's quite, buggy, so make sure you don't try switching songs while it's paused, or whatever
 void Sound_OST_TogglePause(int ms);
+
+//	Sets the volume for the music channel
+//	
+//	Writes new value to the user preferences file
+void Sound_OST_SetVolume(float vol);
 
 
 #endif

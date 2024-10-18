@@ -1,10 +1,10 @@
 # CODENAME: "BONKHONAGAHOOGS"
 
-**Current Version:** *0.2.0*
+**Current Version:** *0.2.1*
 
 ## Engine Feature Progress:
 ```
- - User Data (Settings / Saves) System		[|||||||   ]
+ - User Data (Settings / Saves) System		[||||||||  ]
  - TTF/OTF Font Support and UTF-8 Rendering	[||||||||| ]
  - Colour Palette & player colours System	[||||||||  ]
  - Sound Effect/Music System				[||||||||| ]

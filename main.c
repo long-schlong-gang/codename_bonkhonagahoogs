@@ -1,13 +1,13 @@
 //	
 //	PROJECT BONKHONAGAHOOGS
 //	
-//	Source Code v0.2.0
+//	Source Code v0.2.1
 //	By Olorin
 //	
 
 // TODO: Change Engine/Game Name
 #define ENGINE "Proj. BHGH"
-#define VERSION "0.2.0"
+#define VERSION "0.2.1"
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 1024
 

@@ -102,9 +102,6 @@ void scn_soundtest_setup() {
 		g_isRunning = false;
 	}
 
-	Mix_MasterVolume(20);
-	Mix_VolumeMusic(20);
-
 	Sound_OST_QueueTrack(OST_TEST_1);
 	Sound_OST_FadeNext(1000);
 }
