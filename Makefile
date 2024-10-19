@@ -3,11 +3,11 @@
 #
 
 
-VERSION = 0.1.0
+VERSION = 0.2.1
 BIN = game
 CC = gcc
 CFLAGS = -Wall -g -I'D:\Progs\c\sdl\gin-tonic\include' -L./
-LIBS = mingw32 SDL2main SDL2_net SDL2 GinTonic
+LIBS = mingw32 SDL2main SDL2_ttf SDL2_mixer SDL2_image SDL2 GinTonic
 
 REL_CFLAGS = -Wall -O2 -mwindows
 

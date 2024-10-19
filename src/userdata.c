@@ -13,18 +13,27 @@ void UserData_Init() {
 	g_Userdata_File = Datablock_File_Open(UDATA_FILENAME);
 	if (g_Userdata_File != NULL) {
 		Binding_InitFromFile(g_Userdata_File, UDATA_DBID_BINDINGS);
-		Log_Message(LOG_INFO, "Loaded User Data from '" UDATA_FILENAME "' successfully.");
+		Log_Message(LOG_INFO, "Successfully Initialised User-Data System! '" UDATA_FILENAME "' Loaded");
 		return;
 	}
 	Log_Message(LOG_INFO, "No User Data file '" UDATA_FILENAME "' found: Creating...");
 
 	// Create User Data File with default settings
-	const int num_blocks = 1;
+	const int num_blocks = 2;
 	Datablock *user_data_blocks[num_blocks];
 
 	// Create Audio settings
-	float default_volume = 0.50f;	// Default Volume: 50%
-	user_data_blocks[0] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume));
+	float default_volume = 0.20f;	// Default Volume: 20%
+	user_data_blocks[0] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // SFX Vol
+	user_data_blocks[1] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // OST Vol
+
+	// Create Black Colour Palette
+	// TODO: How to keep in sync with colours.h?
+	// Don't want circular dependency...
+	// Make Colour init write palette?
+	//const int num_clrs = 3;
+	//SDL_Colour default_colour = { 0x00, 0x00, 0x00, 0xFF };
+	//user_data_blocks[2] = Datablock_Create(UDATA_DBID_COLOURS, &default_colour, sizeof(default_colour));
 
 	g_Userdata_File = Datablock_File_Create(UDATA_FILENAME, user_data_blocks, num_blocks);
 
@@ -53,7 +62,7 @@ void UserData_Init() {
 	Datablock_File_Close(g_Userdata_File);
 	g_Userdata_File = Datablock_File_Open(UDATA_FILENAME);
 
-	Log_Message(LOG_INFO, "User Data file '" UDATA_FILENAME "' Created successfully.");
+	Log_Message(LOG_INFO, "Successfully Initialised User-Data System! '" UDATA_FILENAME "' Created");
 }
 
 void UserData_Term() {
@@ -62,6 +71,7 @@ void UserData_Term() {
 	// TODO: Write any necessary changes to file
 
 	Datablock_File_Close(g_Userdata_File);
+	Log_Message(LOG_INFO, "Terminated User-Data System");
 }
 
 //	Internal function to look up datablock indices in the userdata file
@@ -185,4 +195,38 @@ int UserData_Set(Uint16 type, int num, void *data, size_t size) {
 
 	Datablock_Destroy(db);
 	return 0;
+}
+
+// TODO:
+// Implement this if the engine gets to the point of
+// completion that it needs customizable keybinds
+void UserData_SetBinding(Input_Type in, SDL_KeyCode kc) {
+	if (g_keybinds == NULL) return;
+	if (g_Userdata_File == NULL) return;
+	if (in == INPUT_NONE) return;
+	if (kc == SDLK_UNKNOWN) return;
+
+	// Check if this keycode is already in use
+	//int prev = Binding_GetByKeyCode(kc);
+	//if (prev >= 0) {
+	//	if (g_keybinds[prev].num_keycodes == 1) {
+	//		g_keybinds[prev].input = INPUT_NONE;
+	//		g_keybinds[prev].is_held = false;
+	//		g_keybinds[prev].num_keycodes = 0;
+	//		g_keybinds[prev].keycodes[0] = SDLK_UNKNOWN;
+	//	}
+
+	//	for (int i=0; i<g_keybinds[prev].num_keycodes; i++) {
+	//		if (g_keybinds[prev].keycodes[i]
+	//	}
+	//	g_keybinds[prev].input
+	//}
+
+	//Binding_WriteToFile(g_Userdata_File, )
+
+	//for (int i=0; i<g_keybinds; i++) {
+	//	if (g_keybinds[i].input == INPUT_NONE) continue;
+
+	//	if (g_keybinds[i].)
+	//}
 }

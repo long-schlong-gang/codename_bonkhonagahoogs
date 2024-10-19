@@ -5,6 +5,8 @@
 //	Handles Storage and retrieval
 //	of user data stored locally.
 //	
+//	TODO:
+//	 - Find out why it can't write sometimes and why it crashes
 
 #include <stdio.h>
 #include <datablock.h>
@@ -14,9 +16,10 @@
 #define UDATA_FILENAME	"userdata.dbf"	// Where to find userdata
 
 //	Userdata File Datablock-IDs/Types
-#define UDATA_DBID_BINDINGS 0x0001		// Keybinding Preferences
-#define UDATA_DBID_AUDIOPRF 0x0002		// Audio Preferences
-#define UDATA_DBID_SAVEINFO 0x0100		// User Save data header
+#define UDATA_DBID_BINDINGS	0x0001		// Keybinding Preferences
+#define UDATA_DBID_AUDIOPRF	0x0002		// Audio Preferences
+#define UDATA_DBID_COLOURS	0x0003		// Global Colour Palette
+#define UDATA_DBID_SAVEINFO	0x0100		// User Save data header
 
 
 ////	Global Vars
@@ -62,5 +65,14 @@ int UserData_Get(Uint16 type, int num, void *data, size_t size);
 //	Returns -2 if `size` is larger than the userdata length, or `data` is NULL; logs an error
 //	Returns -3 if the file can't be overwritten; logs an error
 int UserData_Set(Uint16 type, int num, void *data, size_t size);
+
+//	!!! Utility that sets the binding internally and writes to userdata
+//	
+//	NOT IMPLEMENTED! DON'T USE!
+//	
+//	Note: This also clears any bindings that use the same keycode `kc`
+//	Returns if Binding or UserData hasn't been initialised.
+//	Also returns if either input is invalid (`INPUT_NONE` or `SDLK_UNKNOWN`)
+void UserData_SetBinding(Input_Type in, SDL_KeyCode kc);
 
 #endif

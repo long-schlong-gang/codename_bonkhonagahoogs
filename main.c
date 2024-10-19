@@ -1,25 +1,32 @@
 //	
 //	PROJECT BONKHONAGAHOOGS
 //	
-//	Source Code v0.1.0
+//	Source Code v0.2.1
 //	By Olorin
 //	
 
-#define VERSION "0.1.0"
+// TODO: Change Engine/Game Name
+#define ENGINE "Proj. BHGH"
+#define VERSION "0.2.1"
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 1024
 
 #include <SDL2/SDL.h>
 
 #include <log.h>
 #include <util.h>
 #include <screen.h>
-#include <sprite.h>
 #include <events.h>
-#include <menu.h>
-#include "src/userdata.h"
 
+#include "src/userdata.h"
+#include "src/ttf_text.h"
+#include "src/sound.h"
+#include "src/pix.h"
 
 //	Include Scenes
 #include "scn_title.c"
+#include "scn_dialogue.c"
+#include "scn_snd_test.c"
 
 
 int main(int argc, char* args[]) {
@@ -27,45 +34,51 @@ int main(int argc, char* args[]) {
 	// TODO: Change for Prod
 	Log_SetPrintLevel(LOG_DEBUG);
 	Log_SetPopupLevel(LOG_WARNING);
+	Log_Message(LOG_INFO, " ");
+	Log_Message(LOG_INFO, "  " ENGINE);
+	Log_Message(LOG_INFO, "  Version: " VERSION);
+	Log_Message(LOG_INFO, " ");
 
 	// Initialisation
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) Log_SDLMessage(LOG_FATAL, "Failed to initialise SDL");
+	Log_Message(LOG_INFO, "------[ SETTING UP ]------");
+	int succ = SDL_Init(
+		SDL_INIT_VIDEO
+		| SDL_INIT_EVENTS
+		| SDL_INIT_AUDIO
+	);
+	if (succ < 0) {
+		Log_SDLMessage(LOG_FATAL, "Failed to initialise SDL");
+		return 1;
+	}
 
 	// TODO: Change Window Title
-	Screen_Init("Proj. BHGH v" VERSION, 256, 256);
-	Sprite_Init();
-	Text_Init(NULL);
-	Events_Init(50);
-	UserData_Init();
+	Screen_Init(ENGINE " v" VERSION, SCREEN_WIDTH, SCREEN_HEIGHT);
+	Events_Init(10);
+	UserData_Init(); TTFText_Init();
+	Sound_Init(); Pix_Init();
 
-	// DEBUG: Test userdata writing
-	float vol = 0.0f;
-	int C = 0;
-	printf("--->[00] C: %i, Volume: %f\n", C, vol);
-
-	C = UserData_Get(0x0002, 0, &vol, sizeof(vol));
-	printf("--->[01] C: %i, Volume: %f\n", C, vol);
-
-	vol = 0.3145f;
-	C = UserData_Set(0x0002, 0, &vol, sizeof(vol));
-	printf("--->[02] C: %i, Volume: %f\n", C, vol);
-
-	C = UserData_Get(0x0002, 0, &vol, sizeof(vol));
-	printf("--->[03] C: %i, Volume: %f\n", C, vol);
+	Log_Message(LOG_INFO, "------[ GAME START ]------");
 
 	// Load Scenes
 	Scene_Register(scn_title, "title");
+	Scene_Register(scn_dialogue, "dia");
+	Scene_Register(scn_soundtest, "snd");
 	Scene_Set("title");
 
 	// Main Game Loop
 	g_isRunning = true;
 	Scene_Execute();
 
+
 	// Termination
-	UserData_Term();
-	Text_Term();
-	Sprite_Term();
+	Log_Message(LOG_INFO, "");
+	Log_Message(LOG_INFO, "------[ TIDYING UP ]------");
+	Pix_Term();
+	Sound_Term();
+	TTFText_Term(); UserData_Term();
 	Screen_Term();
+
+	Log_Message(LOG_INFO, "All done; Goodbye :)");
 	SDL_Quit();
 	return 0;
 }
