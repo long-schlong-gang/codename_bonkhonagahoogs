@@ -3,7 +3,7 @@
 #
 
 
-VERSION = 0.2.2
+VERSION = 0.3.0
 BIN = game
 CC = gcc
 CFLAGS = -Wall -g -I'D:\Progs\c\sdl\gin-tonic\include' -L./

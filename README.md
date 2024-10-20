@@ -1,6 +1,6 @@
 # CODENAME: "BONKHONAGAHOOGS"
 
-**Current Version:** *0.2.2*
+**Current Version:** *0.3.0*
 
 ## Engine Feature Progress:
 ```
@@ -11,7 +11,7 @@
  - Interactive Element System (Eg. Buttons)	[||||||||  ]
  - Dialogue Tree System						[||||||||  ]
  - Basic Image Management System			[||||||||| ]
- - 2D-World View/Interactions System		[          ]
+ - 2D-World View/Interactions System		[|||||||   ]
  - Cutscene System (Very Basic)				[          ]
  - Polish & Bug-Fixes						[||        ]
  - VR Integration & Network Multiplayer		[          ]

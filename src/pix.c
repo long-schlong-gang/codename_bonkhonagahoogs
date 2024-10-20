@@ -14,6 +14,10 @@ ImageInfo g_Images[PIX_COUNT] = {
 	{ "assets/img/fedelov.jpg", 371, 870, NULL },
 	{ "assets/img/fedelov_happy.jpg", 371, 870, NULL },
 	{ "assets/img/fedelov_angry.jpg", 371, 870, NULL },
+	{ "assets/img/player_up.jpg", 100, 100, NULL },
+	{ "assets/img/player_left.jpg", 100, 100, NULL },
+	{ "assets/img/player_right.jpg", 100, 100, NULL },
+	{ "assets/img/player_down.jpg", 100, 100, NULL },
 };
 
 

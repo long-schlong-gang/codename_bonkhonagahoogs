@@ -21,6 +21,10 @@ static void __cb_sound_demo(void *el) {
 	next_scene = "snd";
 }
 
+static void __cb_world(void *el) {
+	next_scene = "world";
+}
+
 static void __cb_hello(void *el) {
 	Log_Message(LOG_WARNING, "Hello, world!");
 	puts("Hello, world!");
@@ -34,7 +38,7 @@ static void __cb_exit(void *el) {
 
 //	Scene Initialisation
 void scn_title_setup() {
-	menu_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
+	menu_buttons = Menel_TBtnArr_Create(5, (Menel_TextButton[5]){
 		{
 			.state = MENEL_BTN_NORMAL,
 			.bounding_box = { 50, 300, 0, 0 },
@@ -53,12 +57,19 @@ void scn_title_setup() {
 			.state = MENEL_BTN_NORMAL,
 			.bounding_box = { 50, 400, 0, 0 },
 			.on_highlight = NULL,
+			.on_select = &__cb_world,
+			.user_data = NULL,
+			.text = "World Demo", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 450, 0, 0 },
+			.on_highlight = NULL,
 			.on_select = &__cb_hello,
 			.user_data = NULL,
 			.text = "Hellö", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 450, 0, 0 },
+			.bounding_box = { 50, 500, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_exit,
 			.user_data = NULL,
