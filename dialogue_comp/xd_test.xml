@@ -1,0 +1,25 @@
+<dialogue root="0x0001" poses="0x2410" music="0x0002">
+
+	<node id="0x0001" poses="0x0000">
+		<t>This is ä tést using XML!</t><br />
+		<t>The parser I'm using,</t><br />
+		<t>is pretty</t><sp /><e> crap </e>
+		<resp next="0x0002">Another Node</resp>
+		<resp next="0x0003">Bad Ending</resp>
+	</node>
+
+	<node id="0x0002" poses="0x0100">
+		<t>This is another node!!!</t><br />
+		<t>Please be</t><sp /><clr id="0x08">impressed</clr><sp /><t>that</t><br />
+		<gay>Ünicödé îs wöřkíñg</gay>
+		<resp next="0x0001">Back</resp>
+	</node>
+
+	<node id="0x0003">
+		<t>*Kills You*</t><br />
+		<br />
+		<e>Goodbye :)</e>
+		<resp>→</resp>
+	</node>
+
+</dialogue>

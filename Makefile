@@ -3,7 +3,7 @@
 #
 
 
-VERSION = 0.2.1
+VERSION = 0.2.2
 BIN = game
 CC = gcc
 CFLAGS = -Wall -g -I'D:\Progs\c\sdl\gin-tonic\include' -L./
@@ -18,3 +18,7 @@ run: build
 build:
 	@echo '### Building... ###\n'
 	${CC} ${CFLAGS} -o ${BIN}.exe main.c src/*.c $(addprefix -l,${LIBS})
+
+static:
+	@echo '### Building Static... ###\n'
+	${CC} -static ${CFLAGS} -o ${BIN}_static.exe main.c src/*.c $(addprefix -l,${LIBS})

@@ -4,8 +4,16 @@
 // TODO: Embed somehow?
 
 ImageInfo g_Images[PIX_COUNT] = {
-	{ "assets/img/eruya.jpg", 339, 859, NULL },
 	{ "assets/img/image.jpg", 100, 100, NULL },
+	{ "assets/img/levu.jpg", 378, 1155, NULL },
+	{ "assets/img/levu_happy.jpg", 378, 1155, NULL },
+	{ "assets/img/levu_angry.jpg", 378, 1155, NULL },
+	{ "assets/img/eruya.jpg", 339, 859, NULL },
+	{ "assets/img/eruya_happy.jpg", 339, 859, NULL },
+	{ "assets/img/eruya_angry.jpg", 339, 859, NULL },
+	{ "assets/img/fedelov.jpg", 371, 870, NULL },
+	{ "assets/img/fedelov_happy.jpg", 371, 870, NULL },
+	{ "assets/img/fedelov_angry.jpg", 371, 870, NULL },
 };
 
 

@@ -6,6 +6,36 @@ Dialogue_Tree g_CurrentDialogue = {
 	.current = NULL,
 	.next_node = -1,
 	.response_buttons = NULL,
+	.npc_poses = { POSE_NOT_PRESENT, POSE_NOT_PRESENT, POSE_NOT_PRESENT, POSE_NOT_PRESENT },
+	.bg_music = OST_NONE,
+};
+
+
+static Image __npc_poses[4][4] = {
+	{	// Levu
+		PIX_LEVU_NEUTRAL,
+		PIX_LEVU_HAPPY,
+		PIX_LEVU_NEUTRAL,
+		PIX_LEVU_ANGRY,
+	},
+	{	// Eruya
+		PIX_ERUYA_NEUTRAL,
+		PIX_ERUYA_HAPPY,
+		PIX_ERUYA_NEUTRAL,
+		PIX_ERUYA_ANGRY,
+	},
+	{	// Fedelov
+		PIX_FEDELOV_NEUTRAL,
+		PIX_FEDELOV_HAPPY,
+		PIX_FEDELOV_NEUTRAL,
+		PIX_FEDELOV_ANGRY,
+	},
+	{	// Kelen
+		PIX_TIT_SMILE,
+		PIX_TIT_SMILE,
+		PIX_TIT_SMILE,
+		PIX_TIT_SMILE,
+	},
 };
 
 
@@ -64,6 +94,24 @@ void Dialogue_LoadTree(char *filename) {
 	data += sizeof(root_node_id);
 	g_CurrentDialogue.root_id = root_node_id;
 
+	Uint16 posetbl = 0x0000;
+	U8_TO_U16(posetbl, *(Uint8 *)(data), *(Uint8 *)(data+1));
+	data += sizeof(posetbl);
+
+	for (int i=0; i<4; i++) {
+		Dialogue_Pose pose = (posetbl >> ((3-i)*4)) & 0b1111;
+		g_CurrentDialogue.npc_poses[i] = pose;
+		if (pose == POSE_NOT_PRESENT) continue;
+		Image img = __npc_poses[i][pose - 1];
+		Pix_Load(img);
+	}
+
+	Uint16 snd_id;
+	SDL_memcpy(&snd_id, data, sizeof(snd_id));
+	data += sizeof(snd_id);
+	g_CurrentDialogue.bg_music = snd_id;
+	Sound_OST_QueueTrack(snd_id);
+
 	Datablock_Destroy(db_header);
 
 	// Load Root
@@ -82,6 +130,19 @@ void Dialogue_UnloadTree() {
 	Menel_TBtnArr_Destroy(g_CurrentDialogue.response_buttons);
 	g_CurrentDialogue.response_buttons = NULL;
 
+	if (g_CurrentDialogue.bg_music != OST_NONE) {
+		Sound_OST_ClearQueue();
+		Sound_OST_FadeNext(100);
+		g_CurrentDialogue.bg_music = OST_NONE;
+	}
+
+	for (int i=0; i<4; i++) {
+		Dialogue_Pose pose = g_CurrentDialogue.npc_poses[i];
+		if (pose == POSE_NOT_PRESENT) continue;
+		Image img = __npc_poses[i][pose - 1];
+		Pix_Load(img);
+	}
+
 	if (__curr_dia_file != NULL) {
 		Datablock_File_Close(__curr_dia_file);
 		__curr_dia_file = NULL;
@@ -93,6 +154,11 @@ void Dialogue_Start() {
 	if (g_CurrentDialogue.current == NULL) {
 		Dialogue_UnloadTree();
 		return;
+	}
+
+	if (g_CurrentDialogue.bg_music != OST_NONE) {
+		Sound_OST_QueueTrack(g_CurrentDialogue.bg_music);
+		Sound_OST_FadeNext(100);
 	}
 }
 
@@ -160,6 +226,17 @@ void Dialogue_DrawAll() {
 	//if (g_CurrentDialogue.root == NULL) return;
 	if (g_CurrentDialogue.current == NULL) return;
 
+	for (int i=0; i<4; i++) {
+		Dialogue_Pose pose = g_CurrentDialogue.npc_poses[i];
+		if (pose == POSE_NOT_PRESENT) continue;
+		Image img = __npc_poses[i][pose - 1];
+		Pix_Draw(img,
+			DIA_NPC_POS_X + i * DIA_NPC_OFFS,
+			DIA_NPC_POS_Y,
+			-1, -1
+		);
+	}
+
 	Dialogue_DrawNode(g_CurrentDialogue.current);
 }
 
@@ -206,14 +283,10 @@ Dialogue_Node *Dialogue_LoadNode(Datablock_File *dbf, NodeID dbid) {
 	}
 
 	if (!Datablock_IsValid(db_node)) {
-
-		// DEBUG: Makes it easier for manual editing to know the right checksum, lol
-		Datablock_CalcSum(db_node);
-
 		char msg[256];
 		SDL_snprintf(msg, 256,
-			"Dialogue Node (0x%04X) has an invalid checksum (Should be 0x%08X)",
-			dbid, db_node->checksum
+			"Dialogue Node (0x%04X, '%s') has an invalid checksum",
+			dbid, __curr_dia_file->filename
 		);
 		Log_Message(LOG_WARNING, msg);
 	}
@@ -247,7 +320,6 @@ Dialogue_Node *Dialogue_LoadNode(Datablock_File *dbf, NodeID dbid) {
 
 		SDL_memcpy(&res->next, data, sizeof(NodeID));
 		data += sizeof(NodeID);
-
 		if (data >= end) continue;
 
 		Uint8 res_txt_len;
@@ -263,7 +335,7 @@ Dialogue_Node *Dialogue_LoadNode(Datablock_File *dbf, NodeID dbid) {
 	}
 
 	if (node->num_responses > 0) {
-		node->responses = SDL_malloc(sizeof(Dialogue_Node) * node->num_responses);
+		node->responses = SDL_malloc(sizeof(Dialogue_Response) * node->num_responses);
 		for (int i=0; i<node->num_responses; i++) {
 			node->responses[i].next = res_buf[i].next;
 			node->responses[i].text = res_buf[i].text;
@@ -337,9 +409,10 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 		// Create Response Buttons
 		if (g_CurrentDialogue.response_buttons == NULL) {
 			int num = node->num_responses;
+			int padd = TTFTEXT_BOX_BORDER_WIDTH - (MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING);
 			SDL_Rect btn_rect = {
-				.x = DIA_BOX_POS_X + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
-				.y = DIA_BOX_POS_Y + (DIA_BOX_ROWS-1)*TTFTEXT_GLYPH_H + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,
+				.x = DIA_BOX_POS_X + padd + 2*TTFTEXT_BOX_PADDING,
+				.y = DIA_BOX_POS_Y + (DIA_BOX_ROWS-1)*TTFText_GlyphHeight() + padd,
 				.w = 0, .h = 0,
 			};
 			Menel_TextButton btn_buf[DIA_MAX_RESPONSES];
@@ -361,23 +434,24 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 				// if the next node is 0 it is the exit node
 				if (node->responses[0].next == 0x0000) {
 					btn_buf[0].user_data = NULL;
-					btn_buf[0].text = DIA_DEF_RESP_EXIT;
+					if (node->responses[0].text == NULL) btn_buf[0].text = DIA_DEF_RESP_EXIT;
+					else btn_buf[0].text = node->responses[0].text;
 				} else {
 					btn_buf[0].user_data = &node->responses[0].next;
-					btn_buf[0].text = DIA_DEF_RESP_NEXT;
+					if (node->responses[0].text == NULL) btn_buf[0].text = DIA_DEF_RESP_NEXT;
+					else btn_buf[0].text = node->responses[0].text;
 				}
 			} else {
 				for (int i=0; i<num; i++) {
 					btn_buf[i].state = MENEL_BTN_NORMAL;
 					btn_buf[i].bounding_box = btn_rect;
-
-					// TODO: Spread them out properly
-					btn_rect.x += 100;
-
 					btn_buf[i].on_highlight = NULL;
 					btn_buf[i].on_select = &__CB_GoToNode;
 					btn_buf[i].user_data = &node->responses[i].next;
 					btn_buf[i].text = node->responses[i].text;
+
+					int x_offset = (SDL_utf8strlen(node->responses[i].text) + 1) * TTFText_GlyphWidth();
+					btn_rect.x += x_offset + MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE;
 				}
 			}
 

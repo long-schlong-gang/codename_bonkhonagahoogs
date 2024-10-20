@@ -66,14 +66,8 @@ Menel_TextButton *Menel_TextBtn_Create(SDL_Rect shape, char *text, Menel_Callbac
 	if (shape.w == 0 || shape.h == 0) {
 		size_t chars = SDL_utf8strlen(text);
 		
-		#ifndef TTFTEXT_GLYPH_W
-		btn->bounding_box.w = TTFTEXT_FONT_SIZE;
-		btn->bounding_box.h = TTFTEXT_FONT_SIZE;
-		Log_Message(LOG_WARNING, "No Rendered glyph size defined! Text-Buttons, will probably have incorrect outlines!");
-		#else
-		btn->bounding_box.w = chars * TTFTEXT_GLYPH_W;
-		btn->bounding_box.h = TTFTEXT_GLYPH_H;
-		#endif
+		btn->bounding_box.w = chars * TTFText_GlyphWidth();
+		btn->bounding_box.h = TTFText_GlyphHeight();
 	}
 
 	return btn;

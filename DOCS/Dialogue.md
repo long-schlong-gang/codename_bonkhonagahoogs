@@ -61,19 +61,20 @@ certain sequences of characters may be used to add more depth to the dialogue.
 Note: `0x1B` is `ESC` in ASCII
 
 **Presentation Escape Sequence List**
-| Escape Sequence | Effect |
-|-----------------|--------|
-| `0x1B 00`       | Reset text to usual colour |
-| `0x1B 01`       | Emphasise following text; Equivalent to `0x1B 02 00 05` (Set colour to CLR_TEXT_EMPH) |
-| `0x1B 02 pp pp` | Set text colour after sequence to the palette colour `0xpppp` |
-| `0x1B 03 tt`    | Set text speed (delay) to `tt` ms per char (50 default) |
-| `0x1B 04 tt`    | Wait `tt` ms before proceeding |
-| `0x1B 10 cs`    | Set character sprite/pose; `s` is the pose/sprite number (0 = Not present); `c` is the character ID |
-| `0x1B 11 cx`    | Set character position; `x` is the signed horizontal position (see below); `c` is the character ID |
-| `0x1B 20`       | Pause currently playing music |
-| `0x1B 21`       | Unpause/Resume music |
-| `0x1B 22 mm mm` | Change music to track with ID `0xmmmm` |
-| `0x1B 2F ss ss` | Play sound effect with ID `0xssss` |
+| I | Escape Sequence | Effect |
+|---|-----------------|--------|
+| Y | `0x1B 00`       | Reset text to usual colour |
+| Y | `0x1B 01`       | Emphasise following text; Equivalent to `0x1B 02 00 05` (Set colour to CLR_TEXT_EMPH) |
+| Y | `0x1B 02 pp pp` | Set text colour after sequence to the palette colour `0xpppp` |
+| N | `0x1B 03 tt`    | Set text speed (delay) to `tt` ms per char (50 default) |
+| N | `0x1B 04 tt`    | Wait `tt` ms before proceeding |
+| Y | `0x1B 0F`       | Set text colour to 'special' colour |
+| N | `0x1B 10 cs`    | Set character sprite/pose; `s` is the pose/sprite number (0 = Not present); `c` is the character ID |
+| N | `0x1B 11 cx`    | Set character position; `x` is the signed horizontal position (see below); `c` is the character ID |
+| N | `0x1B 20`       | Pause currently playing music |
+| N | `0x1B 21`       | Unpause/Resume music |
+| N | `0x1B 22 mm mm` | Change music to track with ID `0xmmmm` |
+| N | `0x1B 2F ss ss` | Play sound effect with ID `0xssss` |
 
 // Put non-text escapes in separate kind of "script" string??
 // Maybe separated with special ASCII control characters?
@@ -95,11 +96,11 @@ Note: `0x1B` is `ESC` in ASCII
 //	See Unicode Block 0x25A0 and up for more
 
 **Special Escape Sequence List**
-| Escape Sequence | Effect |
-|-----------------|--------|
-| `0x1B E0 ff ff` | Clear Global flag `0xffff` (Set False) |
-| `0x1B E1 ff ff` | Set Global flag `0xffff` (Set True) |
-| `0x1B F0 nn nn` | Jump straight to node `0xnnnn` |
+| I | Escape Sequence | Effect |
+|---|-----------------|--------|
+| N | `0x1B E0 ff ff` | Clear Global flag `0xffff` (Set False) |
+| N | `0x1B E1 ff ff` | Set Global flag `0xffff` (Set True) |
+| N | `0x1B F0 nn nn` | Jump straight to node `0xnnnn` |
 
 **Character IDs**
 | ID  | Hex | Character  |
@@ -110,7 +111,17 @@ Note: `0x1B` is `ESC` in ASCII
 | `3` | `3` | Fedelov    |
 | `4` | `4` | Kelen      |
 | ... | ... | UNUSED     |
-| `15`| `F` | You/Player |
+|`15` | `F` | You/Player |
+
+**Pose IDs**
+| ID  | Hex | Pose Name  |
+|-----|-----|------------|
+| `0` | `0` | Not shown  |
+| `1` | `1` | Neutral    |
+| `2` | `2` | Happy      |
+| `3` | `3` | Sad        |
+| `4` | `4` | Angry      |
+| ... | ... | UNUSED     |
 
 Question????????:
 	How to handle multiple characters in a node?
@@ -125,7 +136,20 @@ This contains following fields: (little-endian (System native))
 | Byte Pos. | Length (B) | Field Description |
 |-----------|------------|-------------------|
 | `0x0000`  | 16-Bit, 2B | Root Node block ID |
-| `0x0002`  | 16-Bit, 2B | Reserved for future use |
+| `0x0002`  | 16-Bit, 2B | Character Poses (See below) |
+| `0x0004`  | 16-Bit, 2B | Dialogue Music |
+| `0x0006`  | 16-Bit, 2B | Reserved |
+
+The 'character poses' header field determines which characters are on screen for
+this dialogue and what their poses are. The number is split into 4 nybles, like so:
+See the pose-ID table above for what the numbers indicate.
+
+| Bit Field Mask     | Character |
+|--------------------|-----------|
+| `xxxx------------` | Levu      |
+| `----xxxx--------` | Eruya     |
+| `--------xxxx----` | Fedelov   |
+| `------------xxxx` | Kelen     |
 
 Each node block contains the following fields: (little-endian (System native))
 

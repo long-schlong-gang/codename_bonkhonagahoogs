@@ -27,6 +27,8 @@
 #define TTFTEXT_BOX_PADDING 10
 #define TTFTEXT_BOX_BORDER_WIDTH 5
 
+#define TTFTEXT_ESC 0x1B
+
 
 ////	Types
 typedef struct {
@@ -48,6 +50,14 @@ void TTFText_Init();
 //	Terminates the TTF Font System
 //	
 void TTFText_Term();
+
+//	Gets the width of rendered characters
+//	
+int TTFText_GlyphWidth();
+
+//	Gets the height of rendered characters
+//	
+int TTFText_GlyphHeight();
 
 //	Renders a single Unicode glyph to the screen
 //	

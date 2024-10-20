@@ -23,24 +23,26 @@
 #include "ttf_text.h"
 #include "colours.h"
 #include "sound.h"
+#include "pix.h"
 
 
 ////	Constants
 #define DIALOGUE_FILENAME "assets/txt/test_dialogue.dbf"
 #define DIA_FILE_HEADER_DBID 0x0000
-#define DIA_FILE_HEADER_SIZE 4
+#define DIA_FILE_HEADER_SIZE 8
 #define DIA_MAX_RESPONSES 16
 #define DIA_DEF_RESP_EXIT "Goodbye"
 #define DIA_DEF_RESP_NEXT "Next" //"☞" perhaps???
+
+#define DIA_NPC_POS_X	50
+#define DIA_NPC_POS_Y	50
+#define DIA_NPC_OFFS	300
 
 #define DIA_BOX_POS_X	50
 #define DIA_BOX_POS_Y	600
 #define DIA_BOX_COLS	35
 #define DIA_BOX_ROWS	8
 #define DIA_BOX_SIZE	(DIA_BOX_COLS*DIA_BOX_ROWS)
-
-#define DIA_TEXT_ESC 0x1B
-#define DIA_FILE_PAGE_SEP 0x1D
 
 
 ////	Types
@@ -60,12 +62,31 @@ typedef struct {
 	int num_responses;
 } Dialogue_Node;
 
+typedef enum {
+	NPC_NONE = 0,
+	NPC_LEVU = 1,
+	NPC_ERUYA = 2,
+	NPC_FEDELOV = 3,
+	NPC_KELEN = 4,
+	NPC_PLAYER = 15,
+} Dialogue_NPC;
+
+typedef enum {
+	POSE_NOT_PRESENT = 0,
+	POSE_NEUTRAL = 1,
+	POSE_HAPPY = 2,
+	POSE_SAD = 3,
+	POSE_ANGRY = 4,
+} Dialogue_Pose;
+
 typedef struct {
 	//Dialogue_Node *root; // If reincluded: Copy it
 	NodeID root_id;
 	Dialogue_Node *current;
 	int next_node; // -1: Do nothing; 0: End Dialogue; >0: Go to this node on next event call
 	Menel_TextButtonArray *response_buttons;
+	Dialogue_Pose npc_poses[4]; // 0 = Levu, 1 = Eruya, ...
+	Sound_Music bg_music;
 } Dialogue_Tree;
 
 

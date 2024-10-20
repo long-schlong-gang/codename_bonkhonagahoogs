@@ -13,8 +13,8 @@ static const char *__sfx_filenames[SFX_COUNT] = {
 };
 
 static const char *__ost_filenames[OST_COUNT] = {
-	"assets/snd/title.mp3",		// Title Screen Theme
-	"assets/snd/baka.mp3",
+	"assets/snd/title_draft.ogg",		// Title Screen Theme
+	"assets/snd/baka.mp3",				// TODO: REMOVE THESE! I'm not doing copyright infringement!
 	"assets/snd/arabic_nokia.mp3",
 	"assets/snd/km_blues.mp3",
 };
@@ -38,19 +38,19 @@ void Sound_Init() {
 	}
 
 	// Set from user preferences
-	float sfx_vol = 0.20f;
+	float sfx_vol = 0.30f;
 	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &sfx_vol, sizeof(sfx_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 20%%...\n");
-		sfx_vol = 0.20f;
+		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 10%%...\n");
+		sfx_vol = 0.30f;
 	}
 	Mix_MasterVolume(sfx_vol * MIX_MAX_VOLUME);
 
-	float ost_vol = 0.20f;
+	float ost_vol = 0.10f;
 	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &ost_vol, sizeof(ost_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 20%%...\n");
-		ost_vol = 0.20f;
+		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 10%%...\n");
+		ost_vol = 0.10f;
 	}
 	Mix_VolumeMusic(ost_vol * MIX_MAX_VOLUME);
 
@@ -131,6 +131,12 @@ void Sound_OST_QueueTrack(Sound_Music ost) {
 	}
 
 	if (g_QueuedMusic != NULL) Sound_OST_ClearQueue();
+
+	if (ost == 0) {
+		Sound_OST_ClearQueue();
+		return;
+	}
+	ost -= 1;
 
 	g_QueuedMusic = Mix_LoadMUS(__ost_filenames[ost]);
 	if (g_QueuedMusic == NULL) {

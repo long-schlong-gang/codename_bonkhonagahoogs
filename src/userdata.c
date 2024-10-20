@@ -23,8 +23,9 @@ void UserData_Init() {
 	Datablock *user_data_blocks[num_blocks];
 
 	// Create Audio settings
-	float default_volume = 0.20f;	// Default Volume: 20%
+	float default_volume = 0.30f;	// Default SFX Volume: 30%
 	user_data_blocks[0] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // SFX Vol
+	default_volume = 0.10f;	// Default OST Volume: 10%
 	user_data_blocks[1] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // OST Vol
 
 	// Create Black Colour Palette

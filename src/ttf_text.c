@@ -32,6 +32,23 @@ void TTFText_Term() {
 	Log_Message(LOG_INFO, "Terminated Text System");
 }
 
+int TTFText_GlyphWidth() {
+	#ifdef TTFTEXT_GLYPH_W
+	return TTFTEXT_GLYPH_W;
+	#else
+	return (__dst_rect.w > 0) ? __dst_rect.w : TTFTEXT_FONT_SIZE;
+	#endif
+}
+
+int TTFText_GlyphHeight() {
+	#ifdef TTFTEXT_GLYPH_H
+	return TTFTEXT_GLYPH_H;
+	#else
+	return (__dst_rect.h > 0) ? __dst_rect.h : TTFTEXT_FONT_SIZE;
+	#endif
+}
+
+
 int TTFText_RenderGlyph(int x, int y, PaletteColour clr, Uint32 codepoint) {
 	if (__font == NULL) return -1;
 
@@ -190,19 +207,29 @@ int TTFText_Draw_Box(TTFText_Box txt) {
 			Uint32 codepoint = __UTF8_NextCodepoint(txt.str, &next);
 			if (codepoint == 0) return -1;
 
-			switch (codepoint) {
-				case '\n': {
-					xb = -1;
-					yb++;
-				} continue;
-				//case 0x1B: {
+			if (codepoint == TTFTEXT_ESC) {
+				Uint8 code = __UTF8_NextCodepoint(txt.str, &next);
+				switch (code) {
+					case 0x00: curr_clr = CLR_TEXT_NORM; break;
+					case 0x01: curr_clr = CLR_TEXT_EMPH; break;
+					case 0x02: {
+						PaletteColour clr = __UTF8_NextCodepoint(txt.str, &next);
+						clr <<= 8;
+						clr |= __UTF8_NextCodepoint(txt.str, &next);
+						curr_clr = clr;
+					} break;
+					case 0x0F: curr_clr = CLR_SPECIAL; break;
+				}
 
-				//	Uint8 code = __UTF8_NextCodepoint(txt.str, &next);
-				//	switch (code) {
-				//	}
-
-				//} continue;
+				codepoint = __UTF8_NextCodepoint(txt.str, &next);
+				if (codepoint == 0) return -1;
 			}
+
+			if (codepoint == '\n') {
+				xb = -1;
+				yb++;
+				continue;
+			} 
 
 			TTFText_RenderGlyph(
 				txt.x + xb*__dst_rect.w + TTFTEXT_BOX_BORDER_WIDTH + TTFTEXT_BOX_PADDING,

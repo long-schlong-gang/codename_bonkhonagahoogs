@@ -35,6 +35,7 @@ typedef enum {
 #define SFX_COUNT 2
 
 typedef enum {
+	OST_NONE,
 	OST_TITLE,
 	OST_TEST_1,
 	OST_TEST_2,
