@@ -8,21 +8,17 @@
 #include "src/dialogue.h"
 #include "src/sound.h"
 #include "src/pix.h"
+#include "src/gamestate.h"
 
 
 //	Scene Initialisation
 void scn_dialogue_setup() {
-	Dialogue_LoadTree(DIALOGUE_FILENAME);
 	Dialogue_Start();
-
-	Pix_Load(PIX_ERUYA_SKETCH);
 }
 
 
 //	Scene Termination
 void scn_dialogue_teardown() {
-	Pix_Clear(PIX_ERUYA_SKETCH);
-
 	Dialogue_UnloadTree();
 }
 
@@ -34,7 +30,7 @@ void scn_dialogue_handle_events(SDL_Event evt) {
 	Dialogue_HandleEvents(evt);
 
 	if (g_CurrentDialogue.current == NULL) {
-		Scene_Set("title");
+		Scene_Set(g_CurrentGame.scripted_next_scene);
 	}
 }
 
@@ -43,8 +39,6 @@ void scn_dialogue_handle_events(SDL_Event evt) {
 void scn_dialogue_draw_frame() {
 	Colours_SetRenderer(CLR_WINDOW_BG);
 	SDL_RenderClear(g_renderer);
-
-	Pix_Draw(PIX_ERUYA_SKETCH, 50, 50, -1, -1);
 
 	Dialogue_DrawAll();
 }

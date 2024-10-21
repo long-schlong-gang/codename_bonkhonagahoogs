@@ -1,15 +1,15 @@
 //	
 //	PROJECT BONKHONAGAHOOGS
 //	
-//	Source Code v0.2.1
+//	Source Code v0.4.0
 //	By Olorin
 //	
 
 // TODO: Change Engine/Game Name
 #define ENGINE "Proj. BHGH"
-#define VERSION "0.2.1"
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 1024
+#define VERSION "0.4.0"
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 
 #include <SDL2/SDL.h>
 
@@ -25,8 +25,8 @@
 
 //	Include Scenes
 #include "scn_title.c"
+#include "scn_world.c"
 #include "scn_dialogue.c"
-#include "scn_snd_test.c"
 
 
 int main(int argc, char* args[]) {
@@ -34,10 +34,10 @@ int main(int argc, char* args[]) {
 	// TODO: Change for Prod
 	Log_SetPrintLevel(LOG_DEBUG);
 	Log_SetPopupLevel(LOG_WARNING);
-	Log_Message(LOG_INFO, " ");
+	Log_Message(LOG_INFO, "");
 	Log_Message(LOG_INFO, "  " ENGINE);
 	Log_Message(LOG_INFO, "  Version: " VERSION);
-	Log_Message(LOG_INFO, " ");
+	Log_Message(LOG_INFO, "");
 
 	// Initialisation
 	Log_Message(LOG_INFO, "------[ SETTING UP ]------");
@@ -61,8 +61,8 @@ int main(int argc, char* args[]) {
 
 	// Load Scenes
 	Scene_Register(scn_title, "title");
+	Scene_Register(scn_world, "world");
 	Scene_Register(scn_dialogue, "dia");
-	Scene_Register(scn_soundtest, "snd");
 	Scene_Set("title");
 
 	// Main Game Loop

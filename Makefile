@@ -3,7 +3,7 @@
 #
 
 
-VERSION = 0.2.1
+VERSION = 0.4.0
 BIN = game
 CC = gcc
 CFLAGS = -Wall -g -I'D:\Progs\c\sdl\gin-tonic\include' -L./
@@ -12,9 +12,18 @@ LIBS = mingw32 SDL2main SDL2_ttf SDL2_mixer SDL2_image SDL2 GinTonic
 REL_CFLAGS = -Wall -O2 -mwindows
 
 run: build
-	@echo -e '### Running... ###\n'
+	@echo -e '\n### Running... ###\n'
 	@./${BIN}
 
 build:
-	@echo '### Building... ###\n'
+	@echo -e '\n### Building... ###\n'
 	${CC} ${CFLAGS} -o ${BIN}.exe main.c src/*.c $(addprefix -l,${LIBS})
+
+dialogue: assets/txt/*.xml
+	@echo -e '\n### Compiling Dialogue Files... ###\n'
+#@echo $(patsubst %.xml,%.dbf,$<)
+	@dialogue_comp/xdc.exe $< $(patsubst %.xml,%.dbf,$<)
+
+static:
+	@echo -e '\n### Building Static... ###\n'
+	${CC} -static ${CFLAGS} -o ${BIN}_static.exe main.c src/*.c $(addprefix -l,${LIBS})

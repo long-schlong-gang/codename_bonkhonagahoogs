@@ -13,10 +13,8 @@ static const char *__sfx_filenames[SFX_COUNT] = {
 };
 
 static const char *__ost_filenames[OST_COUNT] = {
-	"assets/snd/title.mp3",		// Title Screen Theme
-	"assets/snd/baka.mp3",
-	"assets/snd/arabic_nokia.mp3",
-	"assets/snd/km_blues.mp3",
+	"assets/snd/title_intro.ogg",		// Title Screen Theme (intro)
+	"assets/snd/title_loop.ogg",		// Title Screen Theme (loop)
 };
 
 
@@ -38,21 +36,21 @@ void Sound_Init() {
 	}
 
 	// Set from user preferences
-	float sfx_vol = 0.20f;
-	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &sfx_vol, sizeof(sfx_vol));
+	float sfx_vol = 0.30f;
+	succ = UserData_Get(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_SFX_VOL, &sfx_vol, sizeof(sfx_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 20%%...\n");
-		sfx_vol = 0.20f;
+		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 30%%...\n");
+		sfx_vol = 0.30f;
 	}
-	Mix_MasterVolume(sfx_vol * MIX_MAX_VOLUME);
+	Mix_MasterVolume((int)(sfx_vol * (float) MIX_MAX_VOLUME));
 
-	float ost_vol = 0.20f;
-	succ = UserData_Get(UDATA_DBID_AUDIOPRF, 0, &ost_vol, sizeof(ost_vol));
+	float ost_vol = 0.10f;
+	succ = UserData_Get(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_OST_VOL, &ost_vol, sizeof(ost_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 20%%...\n");
-		ost_vol = 0.20f;
+		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 10%%...\n");
+		ost_vol = 0.10f;
 	}
-	Mix_VolumeMusic(ost_vol * MIX_MAX_VOLUME);
+	Mix_VolumeMusic((int)(ost_vol * (float) MIX_MAX_VOLUME));
 
 	Log_Message(LOG_INFO, "Successfully Initialised Sound System!");
 }
@@ -117,13 +115,20 @@ void Sound_SFX_ClearAll() {
 }
 
 void Sound_SFX_SetVolume(float vol) {
-	Mix_MasterVolume(vol * MIX_MAX_VOLUME);
+	Mix_MasterVolume((int)(vol * (float) MIX_MAX_VOLUME));
 	UserData_Set(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_SFX_VOL, &vol, sizeof(vol));
+}
+
+void Sound_SFX_ChangeVolume(float vol) {
+	float curr = (float) Mix_MasterVolume(-1) / MIX_MAX_VOLUME;
+	curr += vol;
+	if (curr < 0) curr = 0;
+	Sound_SFX_SetVolume(curr);
 }
 
 
 void Sound_OST_QueueTrack(Sound_Music ost) {
-	if (ost < 0 || ost >= OST_COUNT) {
+	if (ost <= 0 || ost > OST_COUNT) {
 		char msg[128];
 		SDL_snprintf(msg, 128, "Tried to queue invalid music track (0x%04X)", ost);
 		Log_Message(LOG_WARNING, msg);
@@ -131,6 +136,12 @@ void Sound_OST_QueueTrack(Sound_Music ost) {
 	}
 
 	if (g_QueuedMusic != NULL) Sound_OST_ClearQueue();
+
+	if (ost == 0) {
+		Sound_OST_ClearQueue();
+		return;
+	}
+	ost -= 1;
 
 	g_QueuedMusic = Mix_LoadMUS(__ost_filenames[ost]);
 	if (g_QueuedMusic == NULL) {
@@ -191,6 +202,13 @@ void Sound_OST_TogglePause(int ms) {
 }
 
 void Sound_OST_SetVolume(float vol) {
-	Mix_VolumeMusic(vol * MIX_MAX_VOLUME);
+	Mix_VolumeMusic((int)(vol * (float) MIX_MAX_VOLUME));
 	UserData_Set(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_OST_VOL, &vol, sizeof(vol));
+}
+
+void Sound_OST_ChangeVolume(float vol) {
+	float curr = (float) Mix_VolumeMusic(-1) / MIX_MAX_VOLUME;
+	curr += vol;
+	if (curr < 0) curr = 0;
+	Sound_OST_SetVolume(curr);
 }

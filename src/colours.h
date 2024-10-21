@@ -13,7 +13,7 @@
 
 
 ////	Constants
-#define CLR_COUNT 8
+#define CLR_COUNT 12
 
 
 ////	Types
@@ -29,6 +29,10 @@ typedef Sint16 PaletteColour;
 #define CLR_BTN_NORMAL	(PaletteColour)( 0x06 )
 #define CLR_BTN_SELECT	(PaletteColour)( 0x07 )
 #define CLR_BTN_BLOCKED	(PaletteColour)( 0x08 )
+#define CLR_PLANET_TUN	(PaletteColour)( 0x09 )
+#define CLR_PLANET_VES	(PaletteColour)( 0x0A )
+#define CLR_CORPORATE	(PaletteColour)( 0x0B )
+#define CLR_TILE_ITABLE	(PaletteColour)( 0x0C )
 
 
 ////	Global Vars

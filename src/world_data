@@ -1,0 +1,155 @@
+
+#include "world.h"
+
+////	TILES
+
+World_Tile g_WorldTiles[TILE_COUNT] = {
+
+	{	// 0x01: Ground Tile
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = NULL,
+		.udata = NULL,
+		.walkable = true,
+		.facing_tooltip = NULL,
+	},
+
+	{	// 0x02: Misc. Interactable
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Textbox,
+		.udata = "This isn't important right now.",
+		.walkable = false,
+		.facing_tooltip = "Inspect",
+	},
+
+	{	// 0x03: Stairs to Bridge
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_BRIDGE, 3, 0, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Bridge",
+	},
+
+	{	// 0x04: Ladder to Capts Quarters
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_QUART_CAPTAIN, 3, 0, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Capt. Quarters",
+	},
+
+	{	// 0x05: Interactable Computer
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Textbox,
+		.udata = "It's an old computer.",
+		.walkable = false,
+		.facing_tooltip = "Inspect",
+	},
+
+	{	// 0x06: Bridge to Hallway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 0, 1, DIR_RIGHT },
+		.walkable = false,
+		.facing_tooltip = "To Hall",
+	},
+
+	{	// 0x07: Hallway to bridge
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_BRIDGE, 4, 3, DIR_LEFT },
+		.walkable = false,
+		.facing_tooltip = "To Bridge",
+	},
+
+	{	// 0x08: Hallway to Levu's Quarters
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_QUART_LEVU, 2, 3, DIR_UP },
+		.walkable = false,
+		.facing_tooltip = "To Levu's Quarters",
+	},
+
+	{	// 0x09: Levu's Quart. to Hallway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 3, 1, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Hallway",
+	},
+
+	{	// 0x0A: Inaccessable Doorway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Textbox,
+		.udata = "I can't go there at the moment.",
+		.walkable = false,
+		.facing_tooltip = "Check",
+	},
+
+};
+
+
+////	ROOMS
+
+World_Room g_WorldRooms[ROOM_COUNT] = {
+
+	{	// Captain's Quarters
+		.background = PIX_ROOM_QUART_CAPTAIN,
+		.w = 5,
+		.h = 4,
+		.tile_ids = (Uint8 [25]){
+			0x00, 0x00, 0x00, 0x01, 0x03,
+			0x00, 0x00, 0x05, 0x01, 0x01,
+			0x00, 0x01, 0x01, 0x01, 0x02,
+			0x00, 0x00, 0x00, 0x01, 0x02,
+		}
+	},
+
+	{	// The Bridge
+		.background = PIX_ROOM_BRIDGE,
+		.w = 5,
+		.h = 7,
+		.tile_ids = (Uint8 [35]){
+			0x00, 0x00, 0x00, 0x01, 0x04,
+			0x00, 0x02, 0x00, 0x01, 0x01,
+			0x00, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x02, 0x01, 0x01, 0x06,
+			0x00, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x05, 0x05,
+		}
+	},
+
+	{	// Hallway
+		.background = PIX_ROOM_HALLWAY,
+		.w = 11,
+		.h = 3,
+		.tile_ids = (Uint8 [33]){
+			0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x02, 0x00,
+			0x07, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x0A,
+			0x00, 0x00, 0x0A, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x02, 0x00,
+		}
+	},
+
+	{	// Levu's Room
+		.background = PIX_ROOM_QUARTERS,
+		.w = 4,
+		.h = 4,
+		.tile_ids = (Uint8 [33]){
+			0x00, 0x01, 0x02, 0x00,
+			0x00, 0x01, 0x01, 0x00,
+			0x01, 0x01, 0x01, 0x00,
+			0x01, 0x01, 0x09, 0x00,
+		}
+	},
+
+};
