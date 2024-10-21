@@ -18,6 +18,11 @@ ImageInfo g_Images[PIX_COUNT] = {
 	{ "assets/img/player_left.jpg", 100, 100, NULL },
 	{ "assets/img/player_right.jpg", 100, 100, NULL },
 	{ "assets/img/player_down.jpg", 100, 100, NULL },
+	{ "assets/img/title_splash.jpg", 512, 512, NULL },
+	{ "assets/img/captains_quarters.jpg", 500, 400, NULL },
+	{ "assets/img/bridge.jpg", 500, 700, NULL },
+	{ "assets/img/hallway.jpg", 1100, 300, NULL },
+	{ "assets/img/quarters.jpg", 400, 400, NULL },
 };
 
 

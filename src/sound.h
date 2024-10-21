@@ -36,12 +36,10 @@ typedef enum {
 
 typedef enum {
 	OST_NONE,
-	OST_TITLE,
-	OST_TEST_1,
-	OST_TEST_2,
-	OST_TEST_3,
+	OST_TITLE_INTRO,
+	OST_TITLE_LOOP,
 } Sound_Music;
-#define OST_COUNT 4
+#define OST_COUNT 2
 
 
 ////	Globals
@@ -84,13 +82,15 @@ void Sound_SFX_ClearAll();
 
 //	Sets the volume for the SFX channel
 //	
-//	NOTE:
-//	At the moment, both SFX and OST use the same volume
-//	This single value will be written to the settings file.
-//	Both this and `Sound_OST_SetVolume()` Set both levels.
-//	
 //	Writes new value to the user preferences file
 void Sound_SFX_SetVolume(float vol);
+
+//	Changes the volume for the SFX channel relatively
+//	
+//	Writes new value to the user preferences file
+//	Increases volume if `vol` is positive,
+//	Decreases if it's negative
+void Sound_SFX_ChangeVolume(float vol);
 
 //	Loads a music track and prepares it to start playing
 //	
@@ -121,6 +121,13 @@ void Sound_OST_TogglePause(int ms);
 //	
 //	Writes new value to the user preferences file
 void Sound_OST_SetVolume(float vol);
+
+//	Changes the volume for the OST channel relatively
+//	
+//	Writes new value to the user preferences file
+//	Increases volume if `vol` is positive,
+//	Decreases if it's negative
+void Sound_OST_ChangeVolume(float vol);
 
 
 #endif

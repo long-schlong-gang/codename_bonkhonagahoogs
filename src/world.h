@@ -11,11 +11,14 @@
 #include <binding.h>
 
 #include "pix.h"
+#include "colours.h"
+#include "ttf_text.h"
+#include "dialogue.h"
 
 
 ////	Constants
-#define TILE_COUNT 3
-#define ROOM_COUNT 1
+#define TILE_COUNT 0x0A
+#define ROOM_COUNT 0x04
 
 #define WORLD_TILE_SIZE 100
 #define WORLD_PADDING_X 50
@@ -29,9 +32,11 @@ typedef enum {
 } World_TileID;
 
 typedef enum {
-	ROOM_TEST,
+	ROOM_QUART_CAPTAIN,
+	ROOM_BRIDGE,
+	ROOM_HALLWAY,
+	ROOM_QUART_LEVU,
 } World_RoomID;
-
 
 typedef void (*World_Callback)(void *udata);
 
@@ -40,6 +45,7 @@ typedef struct {
 	World_Callback on_exit;
 	World_Callback on_interact;
 	void *udata;
+	char *facing_tooltip;
 	bool walkable;
 } World_Tile;
 
@@ -63,11 +69,26 @@ typedef struct {
 	int y;
 } World_Player;
 
+////	Callback struct params
+
+struct world_dest_s {
+	World_RoomID rm;
+	int x; int y;
+	int dir;
+};
+
+struct world_text_s {
+	char *str;
+	int x; int y;
+	PaletteColour clr;
+};
+
 typedef struct {
 	World_RoomID curr_room;
 	World_Player player;
 	int room_x; // Precalc'd offset to centre room
 	int room_y; // Precalc'd offset to centre room
+	char *txt;
 } World_Zawarudo;
 
 ////	Global Vars
@@ -88,6 +109,20 @@ extern bool g_World_Debug;
 //	
 //void World_Term();
 
+//	Sets the player's position in the world
+//	
+//	If x or y are out of the room, the player defaults to the
+//	first (top-left most) walkable tile.
+//	Set `dir` to -1, to leave it unchanged
+//	
+//	Does nothing with invalid params
+void World_Teleport(World_RoomID rm_id, int x, int y, int dir);
+
+//	Draws a small single-line textbox over the given tile
+//	
+//	Good for basic world interaction
+void World_DrawText(char *str, int tile_x, int tile_y, PaletteColour clr);
+
 //	Handles the inputs for world interaction
 //	
 void World_HandleEvents(SDL_Event event);
@@ -100,7 +135,23 @@ void World_Draw();
 //	
 void World_DrawRoom(World_RoomID room);
 
+//	Returns the ID of the tile directly in front of the player
+//	
+//	If `x` and/or `y` is not NULL, they will be set with
+//	the coordinates of the tile.
+World_TileID World_GetFacingTile(int *x, int *y);
+
 
 ////	Callback Functions
+
+//	Callback to move between rooms
+//	
+//	`_dest` is a pointer to a world_dest_s struct
+void World_CB_Teleport(void *_dest);
+
+//	Callback to display a simple text box
+//	
+//	`_text` is a pointer to a world_text_s struct
+void World_CB_Textbox(void *_text);
 
 #endif

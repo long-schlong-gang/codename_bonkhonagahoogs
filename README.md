@@ -1,6 +1,6 @@
 # CODENAME: "BONKHONAGAHOOGS"
 
-**Current Version:** *0.3.0*
+**Current Version:** *0.4.0*
 
 ## Engine Feature Progress:
 ```

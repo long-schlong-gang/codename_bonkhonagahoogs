@@ -8,6 +8,7 @@ Dialogue_Tree g_CurrentDialogue = {
 	.response_buttons = NULL,
 	.npc_poses = { POSE_NOT_PRESENT, POSE_NOT_PRESENT, POSE_NOT_PRESENT, POSE_NOT_PRESENT },
 	.bg_music = OST_NONE,
+	.background = -1,
 };
 
 
@@ -110,7 +111,7 @@ void Dialogue_LoadTree(char *filename) {
 	SDL_memcpy(&snd_id, data, sizeof(snd_id));
 	data += sizeof(snd_id);
 	g_CurrentDialogue.bg_music = snd_id;
-	Sound_OST_QueueTrack(snd_id);
+	if (snd_id > 0) Sound_OST_QueueTrack(snd_id);
 
 	Datablock_Destroy(db_header);
 
@@ -225,6 +226,14 @@ void Dialogue_HandleEvents(SDL_Event event) {
 void Dialogue_DrawAll() {
 	//if (g_CurrentDialogue.root == NULL) return;
 	if (g_CurrentDialogue.current == NULL) return;
+
+	if (g_CurrentDialogue.background >= 0) {
+		Pix_Draw(g_CurrentDialogue.background,
+			25, 25,
+			g_screen_width - 50,
+			g_screen_height - 50
+		);
+	}
 
 	for (int i=0; i<4; i++) {
 		Dialogue_Pose pose = g_CurrentDialogue.npc_poses[i];
@@ -395,12 +404,14 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 		}
 	}
 
-	int written = TTFText_Draw_Box((TTFText_Box){
-		DIA_BOX_POS_X, DIA_BOX_POS_Y,
+	TTFText_Box dia_box = {
+		DIA_BOX_PADDING,
+		g_screen_height - DIA_BOX_PADDING - (DIA_BOX_ROWS * TTFText_GlyphHeight()),
 		DIA_BOX_COLS, DIA_BOX_ROWS,
 		CLR_TEXT_NORM, node->state,
 		node->text
-	});
+	};
+	int written = TTFText_Draw_Box(dia_box);
 
 	if (written < 0) {
 		node->state = -1;
@@ -411,8 +422,8 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 			int num = node->num_responses;
 			int padd = TTFTEXT_BOX_BORDER_WIDTH - (MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING);
 			SDL_Rect btn_rect = {
-				.x = DIA_BOX_POS_X + padd + 2*TTFTEXT_BOX_PADDING,
-				.y = DIA_BOX_POS_Y + (DIA_BOX_ROWS-1)*TTFText_GlyphHeight() + padd,
+				.x = dia_box.x + padd + 2*TTFTEXT_BOX_PADDING,
+				.y = dia_box.y + (DIA_BOX_ROWS-1)*TTFText_GlyphHeight() + padd,
 				.w = 0, .h = 0,
 			};
 			Menel_TextButton btn_buf[DIA_MAX_RESPONSES];
@@ -434,12 +445,24 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 				// if the next node is 0 it is the exit node
 				if (node->responses[0].next == 0x0000) {
 					btn_buf[0].user_data = NULL;
-					if (node->responses[0].text == NULL) btn_buf[0].text = DIA_DEF_RESP_EXIT;
-					else btn_buf[0].text = node->responses[0].text;
+
+					if (node->responses[0].text == NULL
+						|| node->responses[0].text[0] == '\0'
+					) { 
+						btn_buf[0].text = DIA_DEF_RESP_EXIT;
+					} else {
+						btn_buf[0].text = node->responses[0].text;
+					}
 				} else {
 					btn_buf[0].user_data = &node->responses[0].next;
-					if (node->responses[0].text == NULL) btn_buf[0].text = DIA_DEF_RESP_NEXT;
-					else btn_buf[0].text = node->responses[0].text;
+
+					if (node->responses[0].text == NULL
+						|| node->responses[0].text[0] == '\0'
+					) { 
+						btn_buf[0].text = DIA_DEF_RESP_NEXT;
+					} else {
+						btn_buf[0].text = node->responses[0].text;
+					}
 				}
 			} else {
 				for (int i=0; i<num; i++) {

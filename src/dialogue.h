@@ -27,21 +27,22 @@
 
 
 ////	Constants
-#define DIALOGUE_FILENAME "assets/txt/test_dialogue.dbf"
+
+#define DIAF_INTRO_CUTSCENE "assets/txt/intro_cutscene.dbf"
+
 #define DIA_FILE_HEADER_DBID 0x0000
 #define DIA_FILE_HEADER_SIZE 8
 #define DIA_MAX_RESPONSES 16
 #define DIA_DEF_RESP_EXIT "Goodbye"
-#define DIA_DEF_RESP_NEXT "Next" //"☞" perhaps???
+#define DIA_DEF_RESP_NEXT " → "
 
 #define DIA_NPC_POS_X	50
 #define DIA_NPC_POS_Y	50
 #define DIA_NPC_OFFS	300
 
-#define DIA_BOX_POS_X	50
-#define DIA_BOX_POS_Y	600
-#define DIA_BOX_COLS	35
-#define DIA_BOX_ROWS	8
+#define DIA_BOX_PADDING	50
+#define DIA_BOX_COLS	50
+#define DIA_BOX_ROWS	6
 #define DIA_BOX_SIZE	(DIA_BOX_COLS*DIA_BOX_ROWS)
 
 
@@ -87,6 +88,7 @@ typedef struct {
 	Menel_TextButtonArray *response_buttons;
 	Dialogue_Pose npc_poses[4]; // 0 = Levu, 1 = Eruya, ...
 	Sound_Music bg_music;
+	int background;
 } Dialogue_Tree;
 
 
