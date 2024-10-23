@@ -6,11 +6,13 @@ World_Zawarudo g_World = {
 	.curr_room = ROOM_QUART_CAPTAIN,
 	.player = {
 		.dir = DIR_DOWN,
-		.x = 3,
-		.y = 3,
+		.x = 2,
+		.y = 2,
 	},
 	.room_x = 0,
 	.room_y = 0,
+	.dialogue_filename = NULL,
+	.txt = NULL,
 };
 
 bool g_World_Debug = false;
@@ -38,9 +40,12 @@ void World_Teleport(World_RoomID rm_id, int x, int y, int dir) {
 
 void World_DrawText(char *str, int tile_x, int tile_y, PaletteColour clr) {
 	int len = SDL_utf8strlen(str);
+	int y_offs = 0;
+	if (g_World.player.dir == DIR_UP) y_offs = 2*WORLD_TILE_SIZE - TTFText_GlyphHeight();
+
 	TTFText_Draw_Box((TTFText_Box){
 		.x = tile_x * WORLD_TILE_SIZE + g_World.room_x + WORLD_TILE_SIZE/2 - (len * TTFText_GlyphWidth())/2,
-		.y = tile_y * WORLD_TILE_SIZE + g_World.room_y + WORLD_TILE_SIZE - 5,
+		.y = tile_y * WORLD_TILE_SIZE + g_World.room_y + WORLD_TILE_SIZE - 5 - y_offs,
 		.rows = 1,
 		.cols = len,
 		.clr = clr,
@@ -77,6 +82,14 @@ static void __World_InteractTile() {
 }
 
 void World_HandleEvents(SDL_Event event) {
+	if (g_World.dialogue_filename != NULL) {
+		Dialogue_LoadTree(g_World.dialogue_filename);
+
+		g_CurrentGame.scripted_next_scene = "world";
+		Scene_Set("dia");
+		g_World.dialogue_filename = NULL;
+		return;
+	}
 
 	if (event.type == SDL_KEYDOWN) {
 		if (event.key.keysym.sym == SDLK_F5) g_World_Debug = !g_World_Debug;
@@ -264,4 +277,9 @@ void World_CB_Teleport(void *_dest) {
 void World_CB_Textbox(void *_text) {
 	if (_text == NULL) return;
 	g_World.txt = (char *)(_text);
+}
+
+void World_CB_Dialogue(void *_filename) {
+	if (_filename == NULL) return;
+	g_World.dialogue_filename = (char *)(_filename);
 }

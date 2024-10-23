@@ -14,11 +14,12 @@
 #include "colours.h"
 #include "ttf_text.h"
 #include "dialogue.h"
+#include "gamestate.h"
 
 
 ////	Constants
-#define TILE_COUNT 0x0A
-#define ROOM_COUNT 0x04
+#define TILE_COUNT 0x14
+#define ROOM_COUNT 0x09
 
 #define WORLD_TILE_SIZE 100
 #define WORLD_PADDING_X 50
@@ -36,6 +37,11 @@ typedef enum {
 	ROOM_BRIDGE,
 	ROOM_HALLWAY,
 	ROOM_QUART_LEVU,
+	ROOM_QUART_KELEN,
+	ROOM_QUART_FEDELOV,
+	ROOM_QUART_ERUYA,
+	ROOM_CAFETERIA,
+	ROOM_CARGO_HOLD,
 } World_RoomID;
 
 typedef void (*World_Callback)(void *udata);
@@ -47,6 +53,7 @@ typedef struct {
 	void *udata;
 	char *facing_tooltip;
 	bool walkable;
+	int tile_img; // None if negative
 } World_Tile;
 
 typedef struct {
@@ -88,6 +95,7 @@ typedef struct {
 	World_Player player;
 	int room_x; // Precalc'd offset to centre room
 	int room_y; // Precalc'd offset to centre room
+	char *dialogue_filename;
 	char *txt;
 } World_Zawarudo;
 
@@ -151,7 +159,12 @@ void World_CB_Teleport(void *_dest);
 
 //	Callback to display a simple text box
 //	
-//	`_text` is a pointer to a world_text_s struct
+//	`_text` is char pointer
 void World_CB_Textbox(void *_text);
+
+//	Callback to start a dialogue
+//	
+//	`_filename` is a char pointer with the dialogue's filename
+void World_CB_Dialogue(void *_filename);
 
 #endif
