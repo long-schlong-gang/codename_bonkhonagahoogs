@@ -1,6 +1,6 @@
 # CODENAME: "BONKHONAGAHOOGS"
 
-**Current Version:** *0.4.1*
+**Current Version:** *0.5.0*
 
 ## Engine Feature Progress:
 ```
@@ -8,25 +8,23 @@
  - TTF/OTF Font Support and UTF-8 Rendering [||||||||| ]
  - Colour Palette & player colours System   [||||||||| ]
  - Sound Effect/Music System                [||||||||| ]
- - Interactive Element System (Eg. Buttons) [||||||||  ]
- - Dialogue Tree System                     [||||||||  ]
- - Basic Image Management System            [||||||||| ]
- - 2D-World View/Interactions System        [||||||||  ]
- - Cutscene System (Very Basic)             [xxxxxxxxxx]
- - Polish & Bug-Fixes                       [||        ]
- - VR Integration & Network Multiplayer     [          ]
+ - Interactive Element System (Eg. Buttons) [||||||||| ]
+ - Dialogue Tree System                     [||||||||||]
+ - Basic Image Management System            [||||||||||]
+ - 2D-World View/Interactions System        [||||||||||]
+ - Polish & Bug-Fixes                       [||||      ]
+ - VR Integration & Network Multiplayer     [xxxxxxxxxx]
 ```
 
 ## Game Feature Progress:
 ```
- - Story Arcs Written    [          ]
- - Dialogue Written      [|         ]
- - Dialogue Scripted     [          ]
- - SFX Created           [||        ]
- - Music Composed        [|||       ]
+ - Story Arcs Written    [||        ]
+ - Dialogue Written      [||        ]
+ - SFX Created           [|||       ]
+ - Music Composed        [|||||||   ]
  - Level Layout Set Up   [||||||||  ]
- - In-World Interactions [          ]
+ - In-World Interactions [||        ]
  - Cut-Scene Art Made    [||        ]
- - Cut-Scenes Scripted   [          ]
+ - Cut-Scenes Scripted   [|         ]
  - Final Release         [          ]
 ```

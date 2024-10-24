@@ -30,6 +30,10 @@ void scn_dialogue_handle_events(SDL_Event evt) {
 	Dialogue_HandleEvents(evt);
 
 	if (g_CurrentDialogue.current == NULL) {
+		if (g_CurrentGame.scripted_next_scene == NULL) {
+			g_isRunning = false;
+			return;
+		}
 		Scene_Set(g_CurrentGame.scripted_next_scene);
 	}
 }

@@ -14,6 +14,7 @@
 #include <log.h>
 
 #include "colours.h"
+#include "gamestate.h"
 
 
 ////	Constants

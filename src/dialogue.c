@@ -1,5 +1,12 @@
 #include "dialogue.h"
 
+char *g_DialogueFiles[DIALOGUE_COUNT] = {
+	"assets/txt/intro_cutscene.dbf",
+	"assets/txt/compu_rizz.dbf",
+	"assets/txt/eruya_01_sneakysnitch.dbf",
+	"assets/txt/eruya_01_sneakysnitch_trust.dbf",
+};
+
 Dialogue_Tree g_CurrentDialogue = {
 	//.root = NULL,
 	.root_id = NULL_NODE,
@@ -10,7 +17,6 @@ Dialogue_Tree g_CurrentDialogue = {
 	.bg_music = OST_NONE,
 	.background = -1,
 };
-
 
 static Image __npc_poses[4][4] = {
 	{	// Levu
@@ -473,7 +479,7 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 					btn_buf[i].user_data = &node->responses[i].next;
 					btn_buf[i].text = node->responses[i].text;
 
-					int x_offset = (SDL_utf8strlen(node->responses[i].text) + 1) * TTFText_GlyphWidth();
+					int x_offset = (SDL_utf8strlen(node->responses[i].text) + 2) * TTFText_GlyphWidth();
 					btn_rect.x += x_offset + MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE;
 				}
 			}

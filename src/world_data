@@ -1,8 +1,25 @@
 
 #include "world.h"
 
+////	Tile-Specific Callbacks
+
+static void __tcb_secure_cargo(void *_) {
+	g_World.txt = "\x1B\x02\x00\x0B""ENGAGING AUTOMATIC CARGO SECURING MECHANISMS...\n"
+		"\x1B\x02\x00\x07""SUCCESS!\n"
+		"CARGO IS SECURE.";
+	
+	// Replace cargo interface with generic dummy interface
+	g_WorldRooms[ROOM_CARGO_HOLD].tile_ids[4*15 + 2] = 0x17;
+	Gamestate_SetFlag(GFLAG_S_ERUYA_TRUST, 1);	// Eruya trusts you now
+}
+
 ////	TILES
 
+//	Global list of tile information
+//	
+//	NOTE!
+//	TILE_VOID is not included (index 0), so all tile IDs
+//	must be decremented before accessing the list; g_WorldTiles[tile_id - 1];
 World_Tile g_WorldTiles[TILE_COUNT] = {
 
 	{	// 0x01: Ground Tile
@@ -48,8 +65,10 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 	{	// 0x05: Interactable Computer
 		.on_enter = NULL,
 		.on_exit = NULL,
-		.on_interact = &World_CB_Dialogue,
-		.udata = "assets/txt/compu_rizz.dbf",
+		//.on_interact = &World_CB_Dialogue,	// Cursed Dialogue; not even as an easter egg
+		//.udata = "assets/txt/compu_rizz.dbf",
+		.on_interact = &World_CB_Textbox,
+		.udata = "It's an old-school computer.\nThe implications vex me...",
 		.walkable = false,
 		.facing_tooltip = "Inspect",
 		.tile_img = -1,
@@ -205,6 +224,43 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.tile_img = -1,
 	},
 
+	{	// 0x15: Eruya, Sneaking around cargo dialogue
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_ConditionalDialogue,
+		.udata = &(struct world_cond_dia_s){
+			.gflag_key = GFLAG_S_ERUYA_TRUST,
+			.num_opts = 2,
+			.filenames = (char *[2]){
+				"assets/txt/eruya_01_sneakysnitch.dbf",
+				"assets/txt/eruya_01_sneakysnitch_trust.dbf",
+			}
+		},
+		.walkable = false,
+		.facing_tooltip = "Talk to Eruya",
+		.tile_img = PIX_ERUYA_NEUTRAL,
+	},
+
+	{	// 0x16: Cargo Securing Interface
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &__tcb_secure_cargo,
+		.udata = NULL,
+		.walkable = false,
+		.facing_tooltip = "Secure Cargo Mechanisms",
+		.tile_img = PIX_INTERFACE_WARNING,
+	},
+
+	{	// 0x17: Generic used interface
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Textbox,
+		.udata = "All systems are nominal.",
+		.walkable = false,
+		.facing_tooltip = "Check Interface",
+		.tile_img = PIX_INTERFACE_NORMAL,
+	},
+
 };
 
 
@@ -320,9 +376,9 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 		.tile_ids = (Uint8 [105]){
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x01, 0x12, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
 			0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-			0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x01, 0x01, 0x16, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
 			0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
 			0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		}

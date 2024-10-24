@@ -18,12 +18,14 @@
 
 
 ////	Constants
-#define TILE_COUNT 0x14
+#define TILE_COUNT 0x17
 #define ROOM_COUNT 0x09
 
 #define WORLD_TILE_SIZE 100
 #define WORLD_PADDING_X 50
 #define WORLD_PADDING_Y 50
+
+#define PLAYER_BOB_PX 2
 
 ////	Types
 
@@ -84,10 +86,10 @@ struct world_dest_s {
 	int dir;
 };
 
-struct world_text_s {
-	char *str;
-	int x; int y;
-	PaletteColour clr;
+struct world_cond_dia_s {
+	Uint8 gflag_key;
+	int num_opts;
+	char **filenames;
 };
 
 typedef struct {
@@ -166,5 +168,15 @@ void World_CB_Textbox(void *_text);
 //	
 //	`_filename` is a char pointer with the dialogue's filename
 void World_CB_Dialogue(void *_filename);
+
+//	Callback to start a conditional dialogue
+//	
+//	`_cond_dia` is a pointer to a `world_cond_dia_s` struct
+//	This will check the global flag indicated by `_cond_dia.gflag_key`
+//	and use the result as an index into `_cond_dia.filenames`.
+//	If the value of the gflag is out of the range of provided names,
+//	or the resulting string pointer is NULL, the last in the list is chosen instead.
+//	If the fallback string is also NULL, nothing is done.
+void World_CB_ConditionalDialogue(void *_cond_dia);
 
 #endif

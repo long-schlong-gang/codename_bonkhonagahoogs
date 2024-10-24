@@ -13,7 +13,7 @@
 
 
 ////	Constants
-#define CLR_COUNT 12
+#define CLR_COUNT 0x10
 
 
 ////	Types
@@ -33,6 +33,10 @@ typedef Sint16 PaletteColour;
 #define CLR_PLANET_VES	(PaletteColour)( 0x0A )
 #define CLR_CORPORATE	(PaletteColour)( 0x0B )
 #define CLR_TILE_ITABLE	(PaletteColour)( 0x0C )
+#define CLR_NAME_LEV	(PaletteColour)( 0x0D )
+#define CLR_NAME_ERU	(PaletteColour)( 0x0E )
+#define CLR_NAME_FED	(PaletteColour)( 0x0F )
+#define CLR_NAME_KELEN	(PaletteColour)( 0x10 )
 
 
 ////	Global Vars

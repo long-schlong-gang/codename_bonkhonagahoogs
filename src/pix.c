@@ -8,7 +8,7 @@ ImageInfo g_Images[PIX_COUNT] = {
 	{ "assets/img/levu.jpg", 378, 1155, NULL },
 	{ "assets/img/levu_happy.jpg", 378, 1155, NULL },
 	{ "assets/img/levu_angry.jpg", 378, 1155, NULL },
-	{ "assets/img/eruya.jpg", 339, 859, NULL },
+	{ "assets/img/eruya_clr.png", 500, 1000, NULL },
 	{ "assets/img/eruya_happy.jpg", 339, 859, NULL },
 	{ "assets/img/eruya_angry.jpg", 339, 859, NULL },
 	{ "assets/img/fedelov.jpg", 371, 870, NULL },
@@ -18,6 +18,7 @@ ImageInfo g_Images[PIX_COUNT] = {
 	{ "assets/img/player_left.png", 100, 100, NULL },
 	{ "assets/img/player_right.png", 100, 100, NULL },
 	{ "assets/img/player_down.png", 100, 100, NULL },
+	{ "assets/img/player_down_f2.png", 100, 100, NULL },
 	{ "assets/img/title_splash.jpg", 512, 512, NULL },
 	{ "assets/img/captains_quarters.jpg", 500, 400, NULL },
 	{ "assets/img/bridge.jpg", 500, 700, NULL },
@@ -26,6 +27,8 @@ ImageInfo g_Images[PIX_COUNT] = {
 	{ "assets/img/quarters_south.jpg", 400, 400, NULL },
 	{ "assets/img/cafeteria.jpg", 400, 700, NULL },
 	{ "assets/img/cargo.jpg", 1500, 700, NULL },
+	{ "assets/img/interface_normal.png", 100, 100, NULL },
+	{ "assets/img/interface_warning.png", 100, 100, NULL },
 };
 
 

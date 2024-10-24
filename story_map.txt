@@ -1,0 +1,50 @@
+	
+	Outline of Story Arcs
+
+Initial Setup:
+	- Ship is marooned.
+	- Levu is in her cabin having a mild panic attack.
+	- Eruya is in the cargo hold, inspecting her cargo for damage
+	- Fedelov is in the cafeteria, seeing if he can find alcohol.
+
+PLAYER:
+First Encounters:
+	- You can pick one person to interact with first:
+	- If Eruya, two outcomes:
+		- "Stop poking around my ship!" O-1
+		- "Please return to your cabin. I have the cargo security under control. (Takes convincing)
+		Would you mind checking in with the other passengers?" --> She talks to Levu O-2
+	- If Levu, two outcomes:
+		- "It's nothing to worry about" O-1
+		- "Maybe try going to cafeteria to clear your mind" --> Bad interaction with Fedelov O-3
+	- If Fedelov, two outcomes:
+		- "Now's not the time to get drunk. Get back to your cabin." --> Bad interaction with Levu O-3
+		- "Ah, well, if we're still stranded here by supper, I'll might get out the private reserve..." O-1
+
+Non-Player Encounters / Outcomes:
+	- O-1: No-one talks, Eruya stays in room and plans her manipulation of Fedelov; Fedelov does nothing; Levu continues spiralling
+	- O-2: Eruya calms Levu down; Levu grows admiration for Eruya; Fedelov does nothing
+	- O-3: Fedelov bumps into Levu (or vice-versa); He yells at her, she returns to room and doesn't come out for the rest of the game.
+
+
+PLAYER:
+Second Encounters: (Supper)
+	- Everyone is present for dinner.
+	- You give a briefing on the situation. (Can bring booze)
+	- Levu (if present) starts showing signs of distress;
+		- If O-1, Eruya calms her. Levu is embarassed; P-1
+		- If O-2, Eruya comforts her; Levu shows genuine appreciation. P-2
+		- If O-3, Not present; P-3
+	- Eruya, speaks authoratatively and diplomatically
+		- If O-1, Talks about getting to know one another, "flirts" with Fedelov (trying to secure deal); Booze->P-3; not P-1; Levu; P-2
+		- If O-2, Talks about getting to know one another; Levu agrees
+		- If O-3, Talks about getting to know one another; Fedelov is uninterested. (Only stays if you bring booze)
+	- Fedelov, doesn't say anything unless you bring alcohol.
+		- If O-1/2, Asks whether he has to report the absence at work
+		- If O-3, Takes the alcohol and returns to cabin
+
+Non-Player Encounters / Outcomes:
+	- P-1: No-one talks, Eruya stays in room and plans her manipulation of Fedelov; Fedelov does nothing; Levu continues spiralling
+	- P-2: Eruya calms Levu down; Levu grows admiration for Eruya; Fedelov does nothing
+	- P-3: Fedelov bumps into Levu (or vice-versa); He yells at her, she returns to room and doesn't come out for the rest of the game.
+

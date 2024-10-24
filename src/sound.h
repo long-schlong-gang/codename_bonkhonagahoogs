@@ -31,15 +31,18 @@
 typedef enum {
 	SFX_DIALOGUE_BEEP,
 	SFX_TEST_1,
+	SFX_STEP_1,
+	SFX_STEP_2,
 } Sound_Effect;
-#define SFX_COUNT 2
+#define SFX_COUNT 4
 
 typedef enum {
 	OST_NONE,
 	OST_TITLE_INTRO,
 	OST_TITLE_LOOP,
+	OST_LOUNGE,
 } Sound_Music;
-#define OST_COUNT 2
+#define OST_COUNT 3
 
 
 ////	Globals

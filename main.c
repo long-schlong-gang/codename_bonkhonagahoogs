@@ -1,16 +1,17 @@
 //	
 //	PROJECT BONKHONAGAHOOGS
 //	
-//	Source Code v0.4.1
+//	Source Code v0.5.0
 //	By Olorin
 //	
 
 // TODO: Change Engine/Game Name
 #define ENGINE "Proj. BHGH"
-#define VERSION "0.4.1"
+#define VERSION "0.5.0"
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 
+#include <time.h>
 #include <SDL2/SDL.h>
 
 #include <log.h>
@@ -30,6 +31,8 @@
 
 
 int main(int argc, char* args[]) {
+	srand(time(NULL));
+
 	// Set Logging to Develop Mode
 	// TODO: Change for Prod
 	Log_SetPrintLevel(LOG_DEBUG);

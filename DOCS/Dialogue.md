@@ -98,8 +98,7 @@ Note: `0x1B` is `ESC` in ASCII
 **Special Escape Sequence List**
 | I | Escape Sequence | Effect |
 |---|-----------------|--------|
-| N | `0x1B E0 ff ff` | Clear Global flag `0xffff` (Set False) |
-| N | `0x1B E1 ff ff` | Set Global flag `0xffff` (Set True) |
+| N | `0x1B E0 kk vv` | Set global flag `0xkk` to value `0xvv`. |
 | N | `0x1B F0 nn nn` | Jump straight to node `0xnnnn` |
 
 **Character IDs**
