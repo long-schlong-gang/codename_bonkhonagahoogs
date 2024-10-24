@@ -5,6 +5,7 @@
 
 #include "src/menu_element.h"
 #include "src/gamestate.h"
+#include "src/dialogue.h"
 #include "src/ttf_text.h"
 #include "src/sound.h"
 #include "src/pix.h"
@@ -181,6 +182,7 @@ void scn_title_setup() {
 	//	g_isRunning = false;
 	//}
 
+	// TODO: Replace with a timer or something, doesn't work correctly when not in the window
 	if (intro_remaining_ms < 0) {
 		Sound_OST_QueueTrack(OST_TITLE_INTRO);
 		intro_time = SDL_GetTicks64();
@@ -231,8 +233,16 @@ void scn_title_handle_events(SDL_Event evt) {
 
 
 	switch (action) {
-		case MENU_START_GAME: Gamestate_NewGame(); action = MENU_NO_ACTION; break;
+		case MENU_START_GAME: {
+			Dialogue_LoadTree(DIALOGUE_INTRO);
+			g_CurrentDialogue.background = PIX_TITLE_SPLASH;
+			Pix_Load(PIX_TITLE_SPLASH);
+
+			g_CurrentGame.scripted_next_scene = "world";
+			Scene_Set("dia");
+		} break;
 	}
+	action = MENU_NO_ACTION;
 }
 
 

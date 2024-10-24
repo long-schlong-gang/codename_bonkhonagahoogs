@@ -1,8 +1,25 @@
 
 #include "world.h"
 
+////	Tile-Specific Callbacks
+
+static void __tcb_secure_cargo(void *_) {
+	g_World.txt = "\x1B\x02\x00\x0B""ENGAGING AUTOMATIC CARGO SECURING MECHANISMS...\n"
+		"\x1B\x02\x00\x07""SUCCESS!\n"
+		"CARGO IS SECURE.";
+	
+	// Replace cargo interface with generic dummy interface
+	g_WorldRooms[ROOM_CARGO_HOLD].tile_ids[4*15 + 2] = 0x17;
+	Gamestate_SetFlag(GFLAG_S_ERUYA_TRUST, 1);	// Eruya trusts you now
+}
+
 ////	TILES
 
+//	Global list of tile information
+//	
+//	NOTE!
+//	TILE_VOID is not included (index 0), so all tile IDs
+//	must be decremented before accessing the list; g_WorldTiles[tile_id - 1];
 World_Tile g_WorldTiles[TILE_COUNT] = {
 
 	{	// 0x01: Ground Tile
@@ -12,6 +29,7 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = NULL,
 		.walkable = true,
 		.facing_tooltip = NULL,
+		.tile_img = -1,
 	},
 
 	{	// 0x02: Misc. Interactable
@@ -21,6 +39,7 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = "This isn't important right now.",
 		.walkable = false,
 		.facing_tooltip = "Inspect",
+		.tile_img = -1,
 	},
 
 	{	// 0x03: Stairs to Bridge
@@ -30,6 +49,7 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = &(struct world_dest_s){ ROOM_BRIDGE, 3, 0, DIR_DOWN },
 		.walkable = false,
 		.facing_tooltip = "To Bridge",
+		.tile_img = -1,
 	},
 
 	{	// 0x04: Ladder to Capts Quarters
@@ -39,15 +59,19 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = &(struct world_dest_s){ ROOM_QUART_CAPTAIN, 3, 0, DIR_DOWN },
 		.walkable = false,
 		.facing_tooltip = "To Capt. Quarters",
+		.tile_img = -1,
 	},
 
 	{	// 0x05: Interactable Computer
 		.on_enter = NULL,
 		.on_exit = NULL,
+		//.on_interact = &World_CB_Dialogue,	// Cursed Dialogue; not even as an easter egg
+		//.udata = "assets/txt/compu_rizz.dbf",
 		.on_interact = &World_CB_Textbox,
-		.udata = "It's an old computer.",
+		.udata = "It's an old-school computer.\nThe implications vex me...",
 		.walkable = false,
 		.facing_tooltip = "Inspect",
+		.tile_img = -1,
 	},
 
 	{	// 0x06: Bridge to Hallway
@@ -57,6 +81,7 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 0, 1, DIR_RIGHT },
 		.walkable = false,
 		.facing_tooltip = "To Hall",
+		.tile_img = -1,
 	},
 
 	{	// 0x07: Hallway to bridge
@@ -66,15 +91,17 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = &(struct world_dest_s){ ROOM_BRIDGE, 4, 3, DIR_LEFT },
 		.walkable = false,
 		.facing_tooltip = "To Bridge",
+		.tile_img = -1,
 	},
 
 	{	// 0x08: Hallway to Levu's Quarters
 		.on_enter = NULL,
 		.on_exit = NULL,
 		.on_interact = &World_CB_Teleport,
-		.udata = &(struct world_dest_s){ ROOM_QUART_LEVU, 2, 3, DIR_UP },
+		.udata = &(struct world_dest_s){ ROOM_QUART_LEVU, 2, 2, DIR_UP },
 		.walkable = false,
 		.facing_tooltip = "To Levu's Quarters",
+		.tile_img = -1,
 	},
 
 	{	// 0x09: Levu's Quart. to Hallway
@@ -84,6 +111,7 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 3, 1, DIR_DOWN },
 		.walkable = false,
 		.facing_tooltip = "To Hallway",
+		.tile_img = -1,
 	},
 
 	{	// 0x0A: Inaccessable Doorway
@@ -93,6 +121,144 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.udata = "I can't go there at the moment.",
 		.walkable = false,
 		.facing_tooltip = "Check",
+		.tile_img = -1,
+	},
+
+	{	// 0x0B: Hallway to Fedelov's Quarters
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_QUART_FEDELOV, 2, 1, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Fedelov's Quarters",
+		.tile_img = -1,
+	},
+
+	{	// 0x0C: Fedelov's Quart. to Hallway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 2, 1, DIR_UP },
+		.walkable = false,
+		.facing_tooltip = "To Hallway",
+		.tile_img = -1,
+	},
+
+	{	// 0x0D: Hallway to Eruya's Quarters
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_QUART_ERUYA, 2, 1, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Eruya's Quarters",
+		.tile_img = -1,
+	},
+
+	{	// 0x0E: Eruya's Quart. to Hallway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 5, 1, DIR_UP },
+		.walkable = false,
+		.facing_tooltip = "To Hallway",
+		.tile_img = -1,
+	},
+
+	{	// 0x0F: Hallway to Cafeteria
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_CAFETERIA, 1, 3, DIR_RIGHT },
+		.walkable = false,
+		.facing_tooltip = "To Cafeteria",
+		.tile_img = -1,
+	},
+
+	{	// 0x10: Cafeteria to Hallway
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_HALLWAY, 9, 1, DIR_LEFT },
+		.walkable = false,
+		.facing_tooltip = "To Hallway",
+		.tile_img = -1,
+	},
+
+	{	// 0x11: Cafeteria to Cargo
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_CARGO_HOLD, 8, 1, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Cargo Hold",
+		.tile_img = -1,
+	},
+
+	{	// 0x12: Cargo to Cafeteria
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_CAFETERIA, 0, 1, DIR_DOWN },
+		.walkable = false,
+		.facing_tooltip = "To Cafeteria",
+		.tile_img = -1,
+	},
+
+	{	// 0x13: Captain's Quart. to Cargo
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_CARGO_HOLD, 1, 5, DIR_RIGHT },
+		.walkable = false,
+		.facing_tooltip = "To Cargo Hold",
+		.tile_img = -1,
+	},
+
+	{	// 0x14: Cargo to Captain's Quart.
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Teleport,
+		.udata = &(struct world_dest_s){ ROOM_QUART_CAPTAIN, 3, 2, DIR_UP },
+		.walkable = false,
+		.facing_tooltip = "To Capt. Quarters",
+		.tile_img = -1,
+	},
+
+	{	// 0x15: Eruya, Sneaking around cargo dialogue
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_ConditionalDialogue,
+		.udata = &(struct world_cond_dia_s){
+			.gflag_key = GFLAG_S_ERUYA_TRUST,
+			.num_opts = 2,
+			.filenames = (char *[2]){
+				"assets/txt/eruya_01_sneakysnitch.dbf",
+				"assets/txt/eruya_01_sneakysnitch_trust.dbf",
+			}
+		},
+		.walkable = false,
+		.facing_tooltip = "Talk to Eruya",
+		.tile_img = PIX_ERUYA_NEUTRAL,
+	},
+
+	{	// 0x16: Cargo Securing Interface
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &__tcb_secure_cargo,
+		.udata = NULL,
+		.walkable = false,
+		.facing_tooltip = "Secure Cargo Mechanisms",
+		.tile_img = PIX_INTERFACE_WARNING,
+	},
+
+	{	// 0x17: Generic used interface
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_Textbox,
+		.udata = "All systems are nominal.",
+		.walkable = false,
+		.facing_tooltip = "Check Interface",
+		.tile_img = PIX_INTERFACE_NORMAL,
 	},
 
 };
@@ -110,7 +276,7 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 			0x00, 0x00, 0x00, 0x01, 0x03,
 			0x00, 0x00, 0x05, 0x01, 0x01,
 			0x00, 0x01, 0x01, 0x01, 0x02,
-			0x00, 0x00, 0x00, 0x01, 0x02,
+			0x00, 0x00, 0x00, 0x13, 0x02,
 		}
 	},
 
@@ -135,20 +301,86 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 		.h = 3,
 		.tile_ids = (Uint8 [33]){
 			0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x02, 0x00,
-			0x07, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x0A,
-			0x00, 0x00, 0x0A, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x02, 0x00,
+			0x07, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x0F,
+			0x00, 0x00, 0x0B, 0x00, 0x00, 0x0D, 0x00, 0x00, 0x00, 0x02, 0x00,
 		}
 	},
 
 	{	// Levu's Room
-		.background = PIX_ROOM_QUARTERS,
+		.background = PIX_ROOM_QUARTERS_NORTH,
 		.w = 4,
 		.h = 4,
-		.tile_ids = (Uint8 [33]){
+		.tile_ids = (Uint8 [16]){
 			0x00, 0x01, 0x02, 0x00,
 			0x00, 0x01, 0x01, 0x00,
 			0x01, 0x01, 0x01, 0x00,
 			0x01, 0x01, 0x09, 0x00,
+		}
+	},
+
+	{	// Kelen's Room (Inaccessible)
+		.background = PIX_ROOM_QUARTERS_NORTH,
+		.w = 4,
+		.h = 4,
+		.tile_ids = (Uint8 [16]){
+			0x00, 0x01, 0x02, 0x00,
+			0x00, 0x01, 0x01, 0x00,
+			0x01, 0x01, 0x01, 0x00,
+			0x01, 0x01, 0x09, 0x00,
+		}
+	},
+
+	{	// Fedelov's Room
+		.background = PIX_ROOM_QUARTERS_SOUTH,
+		.w = 4,
+		.h = 4,
+		.tile_ids = (Uint8 [16]){
+			0x01, 0x01, 0x0C, 0x00,
+			0x01, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x02, 0x00,
+		}
+	},
+
+	{	// Eruya's Room
+		.background = PIX_ROOM_QUARTERS_SOUTH,
+		.w = 4,
+		.h = 4,
+		.tile_ids = (Uint8 [16]){
+			0x01, 0x01, 0x0E, 0x00,
+			0x01, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x02, 0x00,
+		}
+	},
+
+	{	// Common Room / Cafeteria
+		.background = PIX_ROOM_CAFETERIA,
+		.w = 4,
+		.h = 7,
+		.tile_ids = (Uint8 [28]){
+			0x11, 0x02, 0x02, 0x01,
+			0x01, 0x01, 0x01, 0x01,
+			0x01, 0x01, 0x01, 0x01,
+			0x10, 0x01, 0x01, 0x01,
+			0x01, 0x00, 0x00, 0x01,
+			0x01, 0x00, 0x00, 0x01,
+			0x00, 0x00, 0x00, 0x01,
+		}
+	},
+
+	{	// Cargo Hold
+		.background = PIX_ROOM_CARGO,
+		.w = 15,
+		.h = 7,
+		.tile_ids = (Uint8 [105]){
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x01, 0x12, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x01, 0x01, 0x16, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
+			0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		}
 	},
 

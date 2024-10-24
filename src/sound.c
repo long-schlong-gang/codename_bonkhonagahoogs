@@ -10,11 +10,14 @@ Mix_Music *g_QueuedMusic = NULL;
 static const char *__sfx_filenames[SFX_COUNT] = {
 	"assets/snd/dit.ogg",		// Dialogue Beep
 	"assets/snd/fast_up.ogg",	// Fast Arp. Up
+	"assets/snd/step_01.ogg",		// Footstep Sound
+	"assets/snd/step_02.ogg",		// Footstep Sound (variant)
 };
 
 static const char *__ost_filenames[OST_COUNT] = {
 	"assets/snd/title_intro.ogg",		// Title Screen Theme (intro)
 	"assets/snd/title_loop.ogg",		// Title Screen Theme (loop)
+	"assets/snd/lounge.ogg",			// More relaxed background music
 };
 
 

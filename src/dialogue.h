@@ -28,7 +28,8 @@
 
 ////	Constants
 
-#define DIAF_INTRO_CUTSCENE "assets/txt/intro_cutscene.dbf"
+#define DIALOGUE_COUNT 4
+#define DIALOGUE_INTRO "assets/txt/intro_cutscene.dbf"
 
 #define DIA_FILE_HEADER_DBID 0x0000
 #define DIA_FILE_HEADER_SIZE 8
@@ -38,11 +39,11 @@
 
 #define DIA_NPC_POS_X	50
 #define DIA_NPC_POS_Y	50
-#define DIA_NPC_OFFS	300
+#define DIA_NPC_OFFS	400
 
 #define DIA_BOX_PADDING	50
-#define DIA_BOX_COLS	50
-#define DIA_BOX_ROWS	6
+#define DIA_BOX_COLS	60
+#define DIA_BOX_ROWS	8
 #define DIA_BOX_SIZE	(DIA_BOX_COLS*DIA_BOX_ROWS)
 
 
@@ -93,6 +94,7 @@ typedef struct {
 
 
 ////	Globals
+extern char *g_DialogueFiles[DIALOGUE_COUNT];
 extern Dialogue_Tree g_CurrentDialogue;
 
 

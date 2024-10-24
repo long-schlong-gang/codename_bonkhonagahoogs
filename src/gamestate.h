@@ -11,13 +11,22 @@
 #include <scene.h>
 
 #include "userdata.h"
-#include "dialogue.h"
 
 
 ////	Constants
 
+//		General Flag Assignment Guideline
+//		
+//	0x0?	Important Meta/Engine Flags
+//	0x1?	Current Dialogue Flags
+//	0x2?	Current World/Tile Flags
+// >0x8?	Story-relevant flags
+
 #define GFLAG_NULL			(Uint8)(0x00)
-#define GFLAG_INTRO_SHOWN	(Uint8)(0x01)
+#define GFLAG_ACT_NUM		(Uint8)(0x01)
+#define GFLAG_BAD_END		(Uint8)(0xFF)	// Meta: >0 if you mega fucked up.
+
+#define GFLAG_S_ERUYA_TRUST	(Uint8)(0x81)	// Story: >0 if Eruya trusts you as the captain; (Set by checking her cargo)
 
 
 ////	Types

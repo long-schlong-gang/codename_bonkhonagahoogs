@@ -7,17 +7,15 @@ Game_State g_CurrentGame = {
 
 
 void Gamestate_NewGame() {
-	Dialogue_LoadTree(DIAF_INTRO_CUTSCENE);
-	g_CurrentDialogue.background = PIX_TITLE_SPLASH;
-	Pix_Load(PIX_TITLE_SPLASH);
-
-	g_CurrentGame.scripted_next_scene = "world";
-	Scene_Set("dia");
 }
 
 void Gamestate_SetFlag(Uint8 key, Uint8 val) {
 	if (key == GFLAG_NULL) return;
 	g_CurrentGame.global_flags[key] = val;
+
+	char msg[256];
+	SDL_snprintf(msg, 256, "Global flag 0x%02X was set to 0x%02X", key, val);
+	Log_Message(LOG_DEBUG, msg);
 }
 
 Uint8 Gamestate_GetFlag(Uint8 key) {

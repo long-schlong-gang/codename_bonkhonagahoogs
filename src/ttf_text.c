@@ -207,18 +207,30 @@ int TTFText_Draw_Box(TTFText_Box txt) {
 			Uint32 codepoint = __UTF8_NextCodepoint(txt.str, &next);
 			if (codepoint == 0) return -1;
 
-			if (codepoint == TTFTEXT_ESC) {
-				Uint8 code = __UTF8_NextCodepoint(txt.str, &next);
+			while (codepoint == TTFTEXT_ESC) {
+				Uint8 code = *next; next++;
 				switch (code) {
 					case 0x00: curr_clr = CLR_TEXT_NORM; break;
 					case 0x01: curr_clr = CLR_TEXT_EMPH; break;
 					case 0x02: {
-						PaletteColour clr = __UTF8_NextCodepoint(txt.str, &next);
+						PaletteColour clr = *next; next++;
 						clr <<= 8;
-						clr |= __UTF8_NextCodepoint(txt.str, &next);
+						clr |= *next; next++;
 						curr_clr = clr;
 					} break;
 					case 0x0F: curr_clr = CLR_SPECIAL; break;
+					
+					// Set global flags
+					case 0xE0: {
+						static Uint8 last_key = 0;
+						static Uint8 last_val = 0;
+						Uint8 key = *next; next++;
+						Uint8 val = *next; next++;
+
+						if (key == last_key && val == last_val) break;
+						last_key = key; last_val = val;
+						Gamestate_SetFlag(key, val);
+					} break;
 				}
 
 				codepoint = __UTF8_NextCodepoint(txt.str, &next);

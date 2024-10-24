@@ -14,15 +14,18 @@
 #include "colours.h"
 #include "ttf_text.h"
 #include "dialogue.h"
+#include "gamestate.h"
 
 
 ////	Constants
-#define TILE_COUNT 0x0A
-#define ROOM_COUNT 0x04
+#define TILE_COUNT 0x17
+#define ROOM_COUNT 0x09
 
 #define WORLD_TILE_SIZE 100
 #define WORLD_PADDING_X 50
 #define WORLD_PADDING_Y 50
+
+#define PLAYER_BOB_PX 2
 
 ////	Types
 
@@ -36,6 +39,11 @@ typedef enum {
 	ROOM_BRIDGE,
 	ROOM_HALLWAY,
 	ROOM_QUART_LEVU,
+	ROOM_QUART_KELEN,
+	ROOM_QUART_FEDELOV,
+	ROOM_QUART_ERUYA,
+	ROOM_CAFETERIA,
+	ROOM_CARGO_HOLD,
 } World_RoomID;
 
 typedef void (*World_Callback)(void *udata);
@@ -47,6 +55,7 @@ typedef struct {
 	void *udata;
 	char *facing_tooltip;
 	bool walkable;
+	int tile_img; // None if negative
 } World_Tile;
 
 typedef struct {
@@ -77,10 +86,10 @@ struct world_dest_s {
 	int dir;
 };
 
-struct world_text_s {
-	char *str;
-	int x; int y;
-	PaletteColour clr;
+struct world_cond_dia_s {
+	Uint8 gflag_key;
+	int num_opts;
+	char **filenames;
 };
 
 typedef struct {
@@ -88,6 +97,7 @@ typedef struct {
 	World_Player player;
 	int room_x; // Precalc'd offset to centre room
 	int room_y; // Precalc'd offset to centre room
+	char *dialogue_filename;
 	char *txt;
 } World_Zawarudo;
 
@@ -151,7 +161,22 @@ void World_CB_Teleport(void *_dest);
 
 //	Callback to display a simple text box
 //	
-//	`_text` is a pointer to a world_text_s struct
+//	`_text` is char pointer
 void World_CB_Textbox(void *_text);
+
+//	Callback to start a dialogue
+//	
+//	`_filename` is a char pointer with the dialogue's filename
+void World_CB_Dialogue(void *_filename);
+
+//	Callback to start a conditional dialogue
+//	
+//	`_cond_dia` is a pointer to a `world_cond_dia_s` struct
+//	This will check the global flag indicated by `_cond_dia.gflag_key`
+//	and use the result as an index into `_cond_dia.filenames`.
+//	If the value of the gflag is out of the range of provided names,
+//	or the resulting string pointer is NULL, the last in the list is chosen instead.
+//	If the fallback string is also NULL, nothing is done.
+void World_CB_ConditionalDialogue(void *_cond_dia);
 
 #endif

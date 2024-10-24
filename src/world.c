@@ -6,11 +6,13 @@ World_Zawarudo g_World = {
 	.curr_room = ROOM_QUART_CAPTAIN,
 	.player = {
 		.dir = DIR_DOWN,
-		.x = 3,
-		.y = 3,
+		.x = 2,
+		.y = 2,
 	},
 	.room_x = 0,
 	.room_y = 0,
+	.dialogue_filename = NULL,
+	.txt = NULL,
 };
 
 bool g_World_Debug = false;
@@ -37,10 +39,14 @@ void World_Teleport(World_RoomID rm_id, int x, int y, int dir) {
 }
 
 void World_DrawText(char *str, int tile_x, int tile_y, PaletteColour clr) {
+	if (str == NULL) return;
 	int len = SDL_utf8strlen(str);
+	int y_offs = 0;
+	if (g_World.player.dir == DIR_UP) y_offs = 2*WORLD_TILE_SIZE - TTFText_GlyphHeight();
+
 	TTFText_Draw_Box((TTFText_Box){
 		.x = tile_x * WORLD_TILE_SIZE + g_World.room_x + WORLD_TILE_SIZE/2 - (len * TTFText_GlyphWidth())/2,
-		.y = tile_y * WORLD_TILE_SIZE + g_World.room_y + WORLD_TILE_SIZE - 5,
+		.y = tile_y * WORLD_TILE_SIZE + g_World.room_y + WORLD_TILE_SIZE - 5 - y_offs,
 		.rows = 1,
 		.cols = len,
 		.clr = clr,
@@ -60,10 +66,13 @@ World_TileID World_GetFacingTile(int *x, int *y) {
 		case DIR_DOWN: new_y++; break;
 	}
 
+	World_Room rm = g_WorldRooms[g_World.curr_room];
+	if (new_x < 0 || new_x >= rm.w) return TILE_VOID;
+	if (new_y < 0 || new_y >= rm.h) return TILE_VOID;
+
 	if (x != NULL) *x = new_x;
 	if (y != NULL) *y = new_y;
 
-	World_Room rm = g_WorldRooms[g_World.curr_room];
 	int tile_index = new_y * rm.w + new_x;
 	return rm.tile_ids[tile_index];
 }
@@ -77,6 +86,14 @@ static void __World_InteractTile() {
 }
 
 void World_HandleEvents(SDL_Event event) {
+	if (g_World.dialogue_filename != NULL) {
+		Dialogue_LoadTree(g_World.dialogue_filename);
+
+		g_CurrentGame.scripted_next_scene = "world";
+		Scene_Set("dia");
+		g_World.dialogue_filename = NULL;
+		return;
+	}
 
 	if (event.type == SDL_KEYDOWN) {
 		if (event.key.keysym.sym == SDLK_F5) g_World_Debug = !g_World_Debug;
@@ -118,6 +135,11 @@ void World_HandleEvents(SDL_Event event) {
 		g_World.player.x = new_x;
 		g_World.player.y = new_y;
 
+		// Play step sound
+		Sound_Effect step_snd = SFX_STEP_1;
+		if (rand() & 0b1) step_snd = SFX_STEP_2;
+		Sound_SFX_Play(step_snd, -1);
+
 		// Trigger Callbacks
 		if (tl.on_enter != NULL) tl.on_enter(tl.udata);
 
@@ -135,16 +157,21 @@ void World_Draw() {
 	World_DrawRoom(g_World.curr_room);
 
 	Image img = PIX_TIT_SMILE;
+	int tick = (SDL_GetTicks() >> 9) & 0b1;
+
 	switch (g_World.player.dir) {
 		case DIR_UP: img = PIX_PLAYER_UP; break;
 		case DIR_LEFT: img = PIX_PLAYER_LEFT; break;
 		case DIR_RIGHT: img = PIX_PLAYER_RIGHT; break;
-		case DIR_DOWN: img = PIX_PLAYER_DOWN; break;
+		case DIR_DOWN: {
+			img = PIX_PLAYER_DOWN;
+			if (tick) img = PIX_PLAYER_DOWN_F2;
+		} break;
 	}
 
 	Pix_Draw(img,
 		g_World.player.x * WORLD_TILE_SIZE + g_World.room_x,
-		g_World.player.y * WORLD_TILE_SIZE + g_World.room_y,
+		g_World.player.y * WORLD_TILE_SIZE + g_World.room_y + tick * PLAYER_BOB_PX,
 		WORLD_TILE_SIZE, WORLD_TILE_SIZE
 	);
 
@@ -218,6 +245,23 @@ void World_DrawRoom(World_RoomID room) {
 		rm.h * WORLD_TILE_SIZE
 	);
 
+	// Draw any tile-specifc sprites
+	for (int y=0; y<rm.h; y++) {
+		for (int x=0; x<rm.w; x++) {
+			World_TileID tid = rm.tile_ids[y * rm.w + x];
+			if (tid == TILE_VOID) continue;
+			World_Tile t = g_WorldTiles[tid - 1];
+			if (t.tile_img < 0) continue;
+			Image img = (Image) t.tile_img;
+
+			Pix_Draw(img,
+				x * WORLD_TILE_SIZE + g_World.room_x,
+				y * WORLD_TILE_SIZE + g_World.room_y,
+				WORLD_TILE_SIZE, WORLD_TILE_SIZE
+			);
+		}
+	}
+
 	if (g_World_Debug) {
 		for (int y=0; y<rm.h; y++) {
 			for (int x=0; x<rm.w; x++) {
@@ -264,4 +308,31 @@ void World_CB_Teleport(void *_dest) {
 void World_CB_Textbox(void *_text) {
 	if (_text == NULL) return;
 	g_World.txt = (char *)(_text);
+}
+
+void World_CB_Dialogue(void *_filename) {
+	if (_filename == NULL) return;
+	g_World.dialogue_filename = (char *)(_filename);
+}
+
+void World_CB_ConditionalDialogue(void *_cond_dia) {
+	if (_cond_dia == NULL) return;
+	struct world_cond_dia_s cond = *(struct world_cond_dia_s *)(_cond_dia);
+
+	Uint8 val = Gamestate_GetFlag(cond.gflag_key);
+	if (val >= cond.num_opts) val = cond.num_opts-1;
+	if (cond.filenames[val] == NULL) val = cond.num_opts-1;
+
+	if (cond.filenames[val] == NULL) {
+		char msg[256];
+		SDL_snprintf(msg, 256,
+			"Conditional Dialogue callback had no valid dialogues! "
+			"(K:0x%02X = V:0x%02X); No Dialogue will be shown!\n",
+			cond.gflag_key, val
+		);
+		Log_Message(LOG_WARNING, msg);
+		return;
+	} 
+
+	g_World.dialogue_filename = cond.filenames[val];
 }
