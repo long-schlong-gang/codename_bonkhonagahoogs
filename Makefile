@@ -3,7 +3,7 @@
 #
 
 
-VERSION = 0.5.0
+VERSION = 0.5.1
 BIN = game
 CC = gcc
 CFLAGS = -Wall -g -I'D:\Progs\c\sdl\gin-tonic\include' -L./
@@ -20,9 +20,11 @@ build: $(DIAS)
 	@echo -e '\n### Building... ###\n'
 	${CC} ${CFLAGS} -o ${BIN}.exe main.c src/*.c $(addprefix -l,${LIBS})
 
-clean_dia:
+clean:
 	@echo -e '\n### Cleaning Dialogue Files... ###\n'
 	rm -f $(DIAS)
+	#@echo -e '\n### Cleaning Userdata... ###\n'
+	#rm -f userdata.dbf
 
 assets/txt/%.dbf:
 	@dialogue_comp/xdc.exe $(patsubst %.dbf,%.xml,$@) $@

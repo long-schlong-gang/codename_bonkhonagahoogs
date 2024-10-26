@@ -37,8 +37,8 @@
 #define DIA_DEF_RESP_EXIT "Goodbye"
 #define DIA_DEF_RESP_NEXT " → "
 
-#define DIA_NPC_POS_X	50
-#define DIA_NPC_POS_Y	50
+#define DIA_NPC_POS_X	250
+#define DIA_NPC_POS_Y	25
 #define DIA_NPC_OFFS	400
 
 #define DIA_BOX_PADDING	50

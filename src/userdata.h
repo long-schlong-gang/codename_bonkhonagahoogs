@@ -19,7 +19,8 @@
 #define UDATA_DBID_BINDINGS	0x0001		// Keybinding Preferences
 #define UDATA_DBID_AUDIOPRF	0x0002		// Audio Preferences
 #define UDATA_DBID_COLOURS	0x0003		// Global Colour Palette
-#define UDATA_DBID_SAVEINFO	0x0100		// User Save data header
+#define UDATA_DBID_SAVEINFO	0x0100		// User Save data header: 12-byte name field, 4-byte playtime in seconds: x3 (All 0s if slot is empty)
+#define UDATA_DBID_SAVEDATA	0x0101		// User Save data block: block of 256 bytes, corresponding to flags
 
 
 ////	Global Vars

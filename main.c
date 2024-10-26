@@ -1,13 +1,14 @@
 //	
-//	PROJECT BONKHONAGAHOOGS
+//		Astral Fermata
+//	"PROJECT BONKHONAGAHOOGS"
 //	
-//	Source Code v0.5.0
-//	By Olorin
+//		Source Code v0.5.1
+//		By Olorin
 //	
 
 // TODO: Change Engine/Game Name
-#define ENGINE "Proj. BHGH"
-#define VERSION "0.5.0"
+#define ENGINE "Astral Fermata"
+#define VERSION "0.5.1"
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 

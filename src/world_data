@@ -4,14 +4,24 @@
 ////	Tile-Specific Callbacks
 
 static void __tcb_secure_cargo(void *_) {
+	Sound_SFX_Play(SFX_DIT_UP, -1);
 	g_World.txt = "\x1B\x02\x00\x0B""ENGAGING AUTOMATIC CARGO SECURING MECHANISMS...\n"
 		"\x1B\x02\x00\x07""SUCCESS!\n"
 		"CARGO IS SECURE.";
 	
 	// Replace cargo interface with generic dummy interface
-	g_WorldRooms[ROOM_CARGO_HOLD].tile_ids[4*15 + 2] = 0x17;
-	Gamestate_SetFlag(GFLAG_S_ERUYA_TRUST, 1);	// Eruya trusts you now
+	World_Room_SetTile(2, 4, 0x17);
+
+	Gamestate_SetFlag(GFLAG_S_CARGO_SECURE, 1);
+	Gamestate_SetFlag(GFLAG_ERUYA_DIA, 0x02);	// Eruya trusts you now, alternative dialogue
 }
+
+static void __tcb_save_game(void *_) {
+	Gamestate_Save(g_CurrentGame.curr_slot);
+
+	g_World.txt = "\x1B\x02\x00\x07""Game saved successfully\n";
+}
+
 
 ////	TILES
 
@@ -224,21 +234,23 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.tile_img = -1,
 	},
 
-	{	// 0x15: Eruya, Sneaking around cargo dialogue
+	{	// 0x15: Eruya
 		.on_enter = NULL,
 		.on_exit = NULL,
 		.on_interact = &World_CB_ConditionalDialogue,
 		.udata = &(struct world_cond_dia_s){
-			.gflag_key = GFLAG_S_ERUYA_TRUST,
-			.num_opts = 2,
-			.filenames = (char *[2]){
-				"assets/txt/eruya_01_sneakysnitch.dbf",
-				"assets/txt/eruya_01_sneakysnitch_trust.dbf",
+			.gflag_key = GFLAG_ERUYA_DIA,
+			.num_opts = 4,
+			.filenames = (char *[4]){
+				"assets/txt/200_eruya_generic.dbf",
+				"assets/txt/201_eruya_sneakysnitch.dbf",
+				"assets/txt/202_eruya_sneakysnitch_trust.dbf",
+				"assets/txt/203_eruya_sneakysnitch_after.dbf",
 			}
 		},
 		.walkable = false,
 		.facing_tooltip = "Talk to Eruya",
-		.tile_img = PIX_ERUYA_NEUTRAL,
+		.tile_img = PIX_ERUYA_TILE,
 	},
 
 	{	// 0x16: Cargo Securing Interface
@@ -261,6 +273,48 @@ World_Tile g_WorldTiles[TILE_COUNT] = {
 		.tile_img = PIX_INTERFACE_NORMAL,
 	},
 
+	{	// 0x18: Save Game
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &__tcb_save_game,
+		.udata = NULL,
+		.walkable = false,
+		.facing_tooltip = "Save Game",
+		.tile_img = -1,
+	},
+
+	{	// 0x19: Levu
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_ConditionalDialogue,
+		.udata = &(struct world_cond_dia_s){
+			.gflag_key = GFLAG_LEVU_DIA,
+			.num_opts = 1,
+			.filenames = (char *[1]){
+				"assets/txt/100_levu_generic.dbf",
+			}
+		},
+		.walkable = false,
+		.facing_tooltip = "Talk to Levu",
+		.tile_img = PIX_LEVU_TILE,
+	},
+
+	{	// 0x1A: Fedelov
+		.on_enter = NULL,
+		.on_exit = NULL,
+		.on_interact = &World_CB_ConditionalDialogue,
+		.udata = &(struct world_cond_dia_s){
+			.gflag_key = GFLAG_FEDELOV_DIA,
+			.num_opts = 1,
+			.filenames = (char *[1]){
+				"assets/txt/300_fedelov_generic.dbf",
+			}
+		},
+		.walkable = false,
+		.facing_tooltip = "Talk to Fedelov",
+		.tile_img = PIX_FEDELOV_TILE,
+	},
+
 };
 
 
@@ -275,8 +329,8 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 		.tile_ids = (Uint8 [25]){
 			0x00, 0x00, 0x00, 0x01, 0x03,
 			0x00, 0x00, 0x05, 0x01, 0x01,
-			0x00, 0x01, 0x01, 0x01, 0x02,
-			0x00, 0x00, 0x00, 0x13, 0x02,
+			0x00, 0x01, 0x01, 0x01, 0x18,
+			0x00, 0x00, 0x00, 0x13, 0x00,
 		}
 	},
 
@@ -359,7 +413,7 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 		.w = 4,
 		.h = 7,
 		.tile_ids = (Uint8 [28]){
-			0x11, 0x02, 0x02, 0x01,
+			0x11, 0x02, 0x18, 0x01,
 			0x01, 0x01, 0x01, 0x01,
 			0x01, 0x01, 0x01, 0x01,
 			0x10, 0x01, 0x01, 0x01,
@@ -376,9 +430,9 @@ World_Room g_WorldRooms[ROOM_COUNT] = {
 		.tile_ids = (Uint8 [105]){
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x01, 0x12, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
 			0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-			0x01, 0x01, 0x16, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
+			0x01, 0x01, 0x17, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01,
 			0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
 			0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		}

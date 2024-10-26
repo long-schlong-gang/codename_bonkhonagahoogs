@@ -18,7 +18,7 @@
 
 
 ////	Constants
-#define TILE_COUNT 0x17
+#define TILE_COUNT 0x1A
 #define ROOM_COUNT 0x09
 
 #define WORLD_TILE_SIZE 100
@@ -93,7 +93,8 @@ struct world_cond_dia_s {
 };
 
 typedef struct {
-	World_RoomID curr_room;
+	World_Room curr_room;
+	Uint8 *curr_tiles;
 	World_Player player;
 	int room_x; // Precalc'd offset to centre room
 	int room_y; // Precalc'd offset to centre room
@@ -143,13 +144,17 @@ void World_Draw();
 
 //	Draws a room to the screen
 //	
-void World_DrawRoom(World_RoomID room);
+void World_DrawRoom();
 
 //	Returns the ID of the tile directly in front of the player
 //	
 //	If `x` and/or `y` is not NULL, they will be set with
 //	the coordinates of the tile.
 World_TileID World_GetFacingTile(int *x, int *y);
+
+//	Change a tile in the currently loaded room
+//	
+void World_Room_SetTile(int x, int y, World_TileID tile_id);
 
 
 ////	Callback Functions

@@ -11,12 +11,13 @@
 #include "src/pix.h"
 
 #define MENU_TITLE		(Uint8)(0)
-#define MENU_NEW_GAME	(Uint8)(1)
+#define MENU_INGAME		(Uint8)(1)
 #define MENU_LOAD_GAME	(Uint8)(2)
 #define MENU_OPTIONS	(Uint8)(3)
 
-#define MENU_NO_ACTION	(Uint8)(0)
-#define MENU_START_GAME	(Uint8)(1)
+#define MENU_NO_ACTION		(Uint8)(0)
+#define MENU_START_GAME		(Uint8)(1)
+#define MENU_QUIT_TO_TITLE	(Uint8)(2)
 
 #define OPT_VOL_DELTA 5
 
@@ -24,23 +25,31 @@ static int action = MENU_NO_ACTION;
 static int menu_page = MENU_TITLE;
 static Menel_TextButtonArray *title_buttons = NULL;
 static Menel_TextButtonArray *option_buttons = NULL;
-//static Menel_TextButtonArray *load_game_buttons = NULL;
-//static Menel_TextButtonArray *new_game_buttons = NULL;
+static Menel_TextButtonArray *load_game_buttons = NULL;
+static Menel_TextButtonArray *loaded_menu_buttons = NULL; // The variant title buttons to show once the game has loaded
+static SDL_TimerID music_timer_id = 0;
+static int menu_root_page = MENU_TITLE;
+static TTFText_Box popup = {
+	.x = 0, .y = 0,
+	.cols = 10, .rows = 1,
+	.charcount = -1,
+	.clr = CLR_BTN_SELECT,
+	.str = NULL,
+};
 
-// Timer stuff to handle moving from title theme intro to loop
-static int intro_remaining_ms = -1;
-static Uint64 intro_time = 0;
+static char save_slot_text[3][32];
 
-
-//	Menu Option Callbacks
-static void __cb_start_game(void *_) {
-	action = MENU_START_GAME;
-}
 
 static void __cb_exit(void *_) {
 	g_isRunning = false;
 }
 
+
+// Timer callback to switch music from intro to loop
+static Uint32 __cb_music_intro_to_loop(Uint32 interval, void *_) {
+	Sound_OST_FadeNext(0);
+	return 0;
+}
 
 //	Pointer fuckery ahead;
 //	If there's a bug in the menu, it's probably this:
@@ -48,6 +57,18 @@ static void __cb_exit(void *_) {
 
 static void __cb_set_menu_page(void *_page) {
 	menu_page = (Uint8)(_page);
+	Sound_SFX_Play(SFX_DIALOGUE_BEEP, -1);
+}
+
+// Returns to base menu (changes based on whether in-game or not)
+static void __cb_back(void *_) {
+	menu_page = menu_root_page;
+	Sound_SFX_Play(SFX_DIALOGUE_BEEP, -1);
+}
+
+static void __cb_set_menu_action(void *_action) {
+	action = (Uint8)(_action);
+	Sound_SFX_Play(SFX_FIFTH, -1);
 }
 
 static void __cb_change_sfx_vol(void *_value) {
@@ -61,29 +82,38 @@ static void __cb_change_ost_vol(void *_value) {
 	Sound_OST_ChangeVolume(change * 0.01f);
 }
 
+static void __cb_load_save(void *_slotnr) {
+	Game_Slot slot = (Game_Slot)(_slotnr);
+	Gamestate_Load(slot);
+	action = MENU_START_GAME;
+	Sound_SFX_Play(SFX_FIFTH, -1);
+}
+
+static void __cb_save_game(void *_slotnr) {
+	Game_Slot slot = (Game_Slot)(_slotnr);
+	Gamestate_Save(slot);
+	popup.str = "\n Game Saved!";
+	popup.cols = 13;
+	popup.rows = 3;
+	Sound_SFX_Play(SFX_DIT_UP, -1);
+}
+
 #pragma GCC diagnostic pop
 
 
 //	Scene Initialisation
 void scn_title_setup() {
-	title_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
+	title_buttons = Menel_TBtnArr_Create(3, (Menel_TextButton[3]){
 		{
 			.state = MENEL_BTN_NORMAL,
 			.bounding_box = { 50, 200, 0, 0 },
 			.on_highlight = NULL,
-			.on_select = &__cb_start_game,
-			.user_data = NULL,
-			.text = "New Game", 
-		},{
-			.state = MENEL_BTN_DISABLED,
-			.bounding_box = { 50, 250, 0, 0 },
-			.on_highlight = NULL,
 			.on_select = &__cb_set_menu_page,
 			.user_data = (void *)(MENU_LOAD_GAME),
-			.text = "Load Game", 
+			.text = "Start Game", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 300, 0, 0 },
+			.bounding_box = { 50, 250, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_set_menu_page,
 			.user_data = (void *)(MENU_OPTIONS),
@@ -101,6 +131,43 @@ void scn_title_setup() {
 		Log_Message(LOG_ERROR, "Failed to create Title-Page buttons");
 		g_isRunning = false;
 	}
+
+	loaded_menu_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
+		{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 200, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_set_menu_action,
+			.user_data = (void *)(MENU_START_GAME),
+			.text = "Back to game", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 250, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_set_menu_page,
+			.user_data = (void *)(MENU_OPTIONS),
+			.text = "Options", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 300, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_save_game,
+			.user_data = (void *)(g_CurrentGame.curr_slot),
+			.text = "Save Game", 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 500, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_set_menu_action,
+			.user_data = (void *)(MENU_QUIT_TO_TITLE),
+			.text = "Quit to Title",
+		},
+	});
+	if (title_buttons == NULL) {
+		Log_Message(LOG_ERROR, "Failed to create In-Game Menu buttons");
+		g_isRunning = false;
+	}
+
 
 	option_buttons = Menel_TBtnArr_Create(5, (Menel_TextButton[5]){
 		{
@@ -135,8 +202,8 @@ void scn_title_setup() {
 			.state = MENEL_BTN_NORMAL,
 			.bounding_box = { 50, 500, 0, 0 },
 			.on_highlight = NULL,
-			.on_select = &__cb_set_menu_page,
-			.user_data = MENU_TITLE,
+			.on_select = &__cb_back,
+			.user_data = NULL,
 			.text = "Back", 
 		},
 	});
@@ -145,53 +212,89 @@ void scn_title_setup() {
 		g_isRunning = false;
 	}
 
-	// TODO: User Saves
-	//load_game_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
-	//	{
-	//		.state = MENEL_BTN_DISABLED,
-	//		.bounding_box = { 50, 200, 0, 0 },
-	//		.on_highlight = NULL,
-	//		.on_select = NULL,
-	//		.user_data = NULL,
-	//		.text = "Save 1 - NAME", 
-	//	},{
-	//		.state = MENEL_BTN_NORMAL,
-	//		.bounding_box = { 50, 250, 0, 0 },
-	//		.on_highlight = NULL,
-	//		.on_select = NULL,
-	//		.user_data = NULL,
-	//		.text = "Save 2 - NAME", 
-	//	},{
-	//		.state = MENEL_BTN_NORMAL,
-	//		.bounding_box = { 50, 300, 0, 0 },
-	//		.on_highlight = NULL,
-	//		.on_select = NULL,
-	//		.user_data = NULL,
-	//		.text = "Save 3 - NAME", 
-	//	},{
-	//		.state = MENEL_BTN_NORMAL,
-	//		.bounding_box = { 50, 500, 0, 0 },
-	//		.on_highlight = NULL,
-	//		.on_select = &__cb_set_menu_page,
-	//		.user_data = MENU_TITLE,
-	//		.text = "Back", 
-	//	},
-	//});
-	//if (load_game_buttons == NULL) {
-	//	Log_Message(LOG_ERROR, "Failed to create Option-Page buttons");
-	//	g_isRunning = false;
-	//}
+	Game_SlotInfo slot_1_info = Gamestate_SlotInfo(GAME_SLOT_1);
+	Game_SlotInfo slot_2_info = Gamestate_SlotInfo(GAME_SLOT_2);
+	Game_SlotInfo slot_3_info = Gamestate_SlotInfo(GAME_SLOT_3);
+	
+	int hrs, min, sec;
 
-	// TODO: Replace with a timer or something, doesn't work correctly when not in the window
-	if (intro_remaining_ms < 0) {
-		Sound_OST_QueueTrack(OST_TITLE_INTRO);
-		intro_time = SDL_GetTicks64();
-		Sound_OST_FadeNext(1000);
-		intro_remaining_ms = Mix_MusicDuration(g_CurrentMusic) * 1000;
-		Sound_OST_QueueTrack(OST_TITLE_LOOP);
+	if (Gamestate_SlotEmpty(GAME_SLOT_1)) {
+		SDL_snprintf(save_slot_text[0], 32, "%12s - %02i:%02i:%02i", "Empty Slot", 0, 0, 0);
+	} else {
+		sec = slot_1_info.playtime;
+		min = sec / 60; sec -= min * 60;
+		hrs = min / 60; min -= hrs * 60;
+		SDL_snprintf(save_slot_text[0], 32, "%12s - %02i:%02i:%02i", slot_1_info.name, hrs, min, sec);
 	}
 
+	if (Gamestate_SlotEmpty(GAME_SLOT_2)) {
+		SDL_snprintf(save_slot_text[1], 32, "%12s - %02i:%02i:%02i", "Empty Slot", 0, 0, 0);
+	} else {
+		sec = slot_2_info.playtime;
+		min = sec / 60; sec -= min * 60;
+		hrs = min / 60; min -= hrs * 60;
+		SDL_snprintf(save_slot_text[1], 32, "%12s - %02i:%02i:%02i", slot_2_info.name, hrs, min, sec);
+	}
+
+	if (Gamestate_SlotEmpty(GAME_SLOT_3)) {
+		SDL_snprintf(save_slot_text[2], 32, "%12s - %02i:%02i:%02i", "Empty Slot", 0, 0, 0);
+	} else {
+		sec = slot_3_info.playtime;
+		min = sec / 60; sec -= min * 60;
+		hrs = min / 60; min -= hrs * 60;
+		SDL_snprintf(save_slot_text[2], 32, "%12s - %02i:%02i:%02i", slot_3_info.name, hrs, min, sec);
+	}
+
+	load_game_buttons = Menel_TBtnArr_Create(4, (Menel_TextButton[4]){
+		{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 200, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_load_save,
+			.user_data = (void *)(GAME_SLOT_1),
+			.text = save_slot_text[0], 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 250, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_load_save,
+			.user_data = (void *)(GAME_SLOT_2),
+			.text = save_slot_text[1], 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 300, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_load_save,
+			.user_data = (void *)(GAME_SLOT_3),
+			.text = save_slot_text[2], 
+		},{
+			.state = MENEL_BTN_NORMAL,
+			.bounding_box = { 50, 500, 0, 0 },
+			.on_highlight = NULL,
+			.on_select = &__cb_back,
+			.user_data = NULL,
+			.text = "Back", 
+		},
+	});
+	if (load_game_buttons == NULL) {
+		Log_Message(LOG_ERROR, "Failed to create Load Game buttons");
+		g_isRunning = false;
+	}
+
+	popup.x = g_screen_width/2 - (15*TTFText_GlyphWidth())/2 - TTFTEXT_BOX_BORDER_WIDTH - TTFTEXT_BOX_PADDING;
+	popup.y = g_screen_height/2 - (3*TTFText_GlyphHeight())/2 - TTFTEXT_BOX_BORDER_WIDTH - TTFTEXT_BOX_PADDING;
+
+	Sound_OST_QueueTrack(OST_TITLE_INTRO);
+	Sound_OST_FadeNext(1000);
+	Sound_OST_QueueTrack(OST_TITLE_LOOP);
+
+	Uint32 intro_time_ms = Mix_MusicDuration(g_CurrentMusic) * 1000.0f;
+	music_timer_id = SDL_AddTimer(intro_time_ms, &__cb_music_intro_to_loop, NULL);
+
+	Sound_SFX_Prepare(SFX_DIALOGUE_BEEP);
 	Sound_SFX_Prepare(SFX_TEST_1);
+	Sound_SFX_Prepare(SFX_DIT_UP);
+	Sound_SFX_Prepare(SFX_FIFTH);
 
 	Pix_Load(PIX_TITLE_SPLASH);
 }
@@ -201,10 +304,15 @@ void scn_title_setup() {
 void scn_title_teardown() {
 	Pix_Clear(PIX_TITLE_SPLASH);
 
-	Sound_SFX_Clear(SFX_TEST_1);
+	SDL_RemoveTimer(music_timer_id);
 
 	Sound_OST_ClearQueue();
-	Sound_OST_FadeNext(1000);
+	Sound_OST_FadeNext(500);
+
+	Sound_SFX_Clear(SFX_DIALOGUE_BEEP);
+	Sound_SFX_Clear(SFX_TEST_1);
+	Sound_SFX_Clear(SFX_DIT_UP);
+	Sound_SFX_Clear(SFX_FIFTH);
 
 	Menel_TBtnArr_Destroy(title_buttons);
 	Menel_TBtnArr_Destroy(option_buttons);
@@ -215,34 +323,36 @@ void scn_title_teardown() {
 void scn_title_handle_events(SDL_Event evt) {
 	if (evt.type == SDL_QUIT) g_isRunning = false;
 
-	if (intro_remaining_ms > 0) {
-		Uint64 now = SDL_GetTicks64();
-		int elapsed = now - intro_time;
-		intro_remaining_ms -= elapsed;
-		intro_time = now;
-		if (intro_remaining_ms < 0) {
-			intro_remaining_ms = 0;
-			Sound_OST_FadeNext(0);
+	if (popup.str != NULL) {
+		if (evt.type == SDL_KEYUP || evt.type == SDL_MOUSEBUTTONDOWN) {
+			popup.str = NULL;
 		}
+		return;
 	}
 
 	switch (menu_page) {
 		case MENU_TITLE: Menel_TBtnArr_HandleEvent(title_buttons, evt); break;
+		case MENU_INGAME: Menel_TBtnArr_HandleEvent(loaded_menu_buttons, evt); break;
 		case MENU_OPTIONS: Menel_TBtnArr_HandleEvent(option_buttons, evt); break;
+		case MENU_LOAD_GAME: Menel_TBtnArr_HandleEvent(load_game_buttons, evt); break;
 	}
-
 
 	switch (action) {
 		case MENU_START_GAME: {
-			Dialogue_LoadTree(DIALOGUE_INTRO);
-			g_CurrentDialogue.background = PIX_TITLE_SPLASH;
-			Pix_Load(PIX_TITLE_SPLASH);
-
-			g_CurrentGame.scripted_next_scene = "world";
-			Scene_Set("dia");
+			menu_page = MENU_INGAME;
+			menu_root_page = MENU_INGAME;
+			Scene_Set("world");
+		} break;
+		case MENU_QUIT_TO_TITLE: {
+			menu_page = MENU_TITLE;
+			menu_root_page = MENU_TITLE;
 		} break;
 	}
 	action = MENU_NO_ACTION;
+
+	if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_ESCAPE) {
+		if (menu_page == MENU_INGAME) Scene_Set("world");
+	}
 }
 
 
@@ -269,6 +379,10 @@ void scn_title_draw_frame() {
 
 		case MENU_TITLE: {
 			Menel_TBtnArr_Draw(title_buttons);
+		} break;
+
+		case MENU_INGAME: {
+			Menel_TBtnArr_Draw(loaded_menu_buttons);
 		} break;
 
 		case MENU_OPTIONS: {
@@ -323,15 +437,12 @@ void scn_title_draw_frame() {
 
 		} break;
 
+		case MENU_LOAD_GAME: {
+			Menel_TBtnArr_Draw(load_game_buttons);
+		} break;
 	}
 
-	//	Le Rainbow Bar :P
-	//	
-	//Colours_SetRenderer(CLR_SPECIAL);
-	//SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-	//	50, g_screen_height - 50 - 50,
-	//	intro_remaining_ms, 50
-	//});
+	if (popup.str != NULL) TTFText_Draw_Box(popup);
 }
 
 
