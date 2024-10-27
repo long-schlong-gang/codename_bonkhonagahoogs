@@ -34,14 +34,18 @@
 #define GFLAG_WORLD_DIR		(Uint8)(0x23)	// World: Direction player is facing
 
 #define GFLAG_LEVU_DIA		(Uint8)(0x30)	// NPCs: Index of Levu's current dialogue
+#define GFLAG_LEVU_KARMA	(Uint8)(0x31)	// NPCs: Levu's current mood/progress (0 = Neutral, >0 = Good; <0 (>127) = Bad)
 #define GFLAG_ERUYA_DIA		(Uint8)(0x34)	// NPCs: Index of Eruya's current dialogue
+#define GFLAG_ERUYA_KARMA	(Uint8)(0x35)	// NPCs: Eruya's current mood/progress (0 = Neutral, >0 = Good; <0 (>127) = Bad)
 #define GFLAG_FEDELOV_DIA	(Uint8)(0x38)	// NPCs: Index of Fedelov's current dialogue
+#define GFLAG_FEDELOV_KARMA	(Uint8)(0x39)	// NPCs: Fedelov's current mood/progress (0 = Neutral, >0 = Good; <0 (>127) = Bad)
 #define GFLAG_KELEN_DIA		(Uint8)(0x3C)	// NPCs: Index of Kelen's current dialogue
+#define GFLAG_KELEN_KARMA	(Uint8)(0x3D)	// NPCs: Kelen's current mood/progress (0 = Neutral, >0 = Good; <0 (>127) = Bad)
 
 #define GFLAG_S_CARGO_SECURE	(Uint8)(0x81)	// Story: >0 if you secured the cargo (Eruya trusts you more)
 #define GFLAG_S_E_HELPED_L		(Uint8)(0x82)	// Story: >0 if you told Eruya to help Levu during the initial turbulance
 
-#define GFLAG_BAD_END		(Uint8)(0xFF)	// Meta/Story: >0 if you mega fucked up.
+#define GFLAG_END			(Uint8)(0xFF)	// Meta/Story: If >0 will end the game
 
 
 #define ACT_NUM_INTRO		0
@@ -54,6 +58,7 @@
 
 #define CUTSCENE_NUM_NONE	0
 #define CUTSCENE_NUM_INTRO	1
+#define CUTSCENE_NUM_OUTTRO	2
 
 
 ////	Types

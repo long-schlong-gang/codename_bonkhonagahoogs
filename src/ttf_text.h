@@ -18,14 +18,14 @@
 
 
 ////	Constants
-#define TTFTEXT_FONT_FILE "assets/fonts/generale.otf"
-#define TTFTEXT_FONT_SIZE 34
+#define TTFTEXT_FONT_FILE "assets/fonts/fira_code_bold.ttf"
+#define TTFTEXT_FONT_SIZE 36
 
 // Depends on TTFTEXT_FONT_SIZE; if you change it, re-calc glyph size
-#define TTFTEXT_GLYPH_W 25
-#define TTFTEXT_GLYPH_H 41
+#define TTFTEXT_GLYPH_W 22
+#define TTFTEXT_GLYPH_H 48
 
-#define TTFTEXT_BOX_PADDING 10
+#define TTFTEXT_BOX_PADDING 15
 #define TTFTEXT_BOX_BORDER_WIDTH 5
 
 #define TTFTEXT_ESC 0x1B

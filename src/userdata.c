@@ -5,10 +5,7 @@ Datablock_File *g_Userdata_File = NULL;
 
 
 void UserData_Init() {
-	if (g_Userdata_File != NULL) {
-		Log_Message(LOG_WARNING, "UserData_Ensure called after UserData is already set. Redundancy?");
-		return;
-	}
+	if (g_Userdata_File != NULL) return;
 
 	g_Userdata_File = Datablock_File_Open(UDATA_FILENAME);
 	if (g_Userdata_File != NULL) {
@@ -23,9 +20,9 @@ void UserData_Init() {
 	Datablock *user_data_blocks[num_blocks];
 
 	// Create Audio settings
-	float default_volume = 0.30f;	// Default SFX Volume: 30%
+	float default_volume = 0.40f;	// Default SFX Volume: 40%
 	user_data_blocks[0] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // SFX Vol
-	default_volume = 0.10f;	// Default OST Volume: 10%
+	default_volume = 0.25f;	// Default OST Volume: 25%
 	user_data_blocks[1] = Datablock_Create(UDATA_DBID_AUDIOPRF, &default_volume, sizeof(default_volume)); // OST Vol
 	
 	// Create Black Colour Palette

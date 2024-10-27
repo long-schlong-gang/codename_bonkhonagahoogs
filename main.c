@@ -2,13 +2,13 @@
 //		Astral Fermata
 //	"PROJECT BONKHONAGAHOOGS"
 //	
-//		Source Code v0.5.1
+//		Source Code v1.0.0
 //		By Olorin
 //	
 
 // TODO: Change Engine/Game Name
-#define ENGINE "Astral Fermata"
-#define VERSION "0.5.1"
+#define ENGINE "Astral Fermata (Demo)"
+#define VERSION "1.0.0"
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 
@@ -34,10 +34,14 @@
 int main(int argc, char* args[]) {
 	srand(time(NULL));
 
-	// Set Logging to Develop Mode
-	// TODO: Change for Prod
-	Log_SetPrintLevel(LOG_DEBUG);
-	Log_SetPopupLevel(LOG_WARNING);
+	// Production Log Levels
+	Log_SetPrintLevel(LOG_INFO);
+	Log_SetPopupLevel(LOG_FATAL);
+
+	//// Develop Log Levels
+	//Log_SetPrintLevel(LOG_DEBUG);
+	//Log_SetPopupLevel(LOG_WARNING);
+
 	Log_Message(LOG_INFO, "");
 	Log_Message(LOG_INFO, "  " ENGINE);
 	Log_Message(LOG_INFO, "  Version: " VERSION);

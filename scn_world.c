@@ -41,6 +41,16 @@ void scn_world_setup() {
 			Gamestate_SetFlag(GFLAG_CUTSCENE, CUTSCENE_NUM_NONE);
 			Scene_Set("dia");
 		} break;
+		case CUTSCENE_NUM_OUTTRO: {
+			Log_Message(LOG_DEBUG, "Triggered outtro");
+			Dialogue_LoadTree("assets/txt/outtro_cutscene.dbf");
+			g_CurrentDialogue.background = PIX_BG_SPACE;
+			Pix_Load(PIX_BG_SPACE);
+
+			Gamestate_SetFlag(GFLAG_END, 1);
+			Gamestate_SetFlag(GFLAG_CUTSCENE, CUTSCENE_NUM_NONE);
+			Scene_Set("dia");
+		} break;
 	}
 
 	World_Teleport(
@@ -70,11 +80,9 @@ void scn_world_handle_events(SDL_Event evt) {
 	World_HandleEvents(evt);
 
 	// Check for changes to global vars
-	if (Gamestate_GetFlag(GFLAG_BAD_END) > 0) {
-		Dialogue_LoadTree("assets/txt/bonk.dbf");
-		g_CurrentDialogue.background = -1;
-		Pix_Clear(PIX_TITLE_SPLASH);
-		Scene_Set("dia");
+	if (Gamestate_GetFlag(GFLAG_END) > 0) {
+		g_isRunning = false;
+		return;
 	}
 
 	if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_ESCAPE) {

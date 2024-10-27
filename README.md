@@ -1,7 +1,7 @@
 # Astral Fermata
 *Codename: Project "BONKHONAGAHOOGS"*
 
-**Current Version:** *0.5.1*
+**Current Version:** *Demo Release 1.0.0*
 
 ## Engine Feature Progress:
 ```
@@ -19,13 +19,13 @@
 
 ## Game Feature Progress:
 ```
- - Story Arcs Written    [||        ]
- - Dialogue Written      [|||       ]
- - SFX Created           [||||      ]
+ - Story Arcs Written    [||xxxxxxxx]
+ - Dialogue Written      [|||||xxxxx]
+ - SFX Created           [|||||||   ]
  - Music Composed        [||||||||| ]
  - Level Layout Set Up   [||||||||| ]
- - In-World Interactions [||||      ]
+ - In-World Interactions [||||xxxxxx]
  - Cut-Scene Art Made    [||||||||| ]
- - Cut-Scenes Scripted   [||||      ]
- - Final Release         [          ]
+ - Cut-Scenes Scripted   [|||||||xxx]
+ - Final Release         [||||||||  ]
 ```

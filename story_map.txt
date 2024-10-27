@@ -1,50 +1,38 @@
+
+
+	New Outline following tree and act structure
 	
-	Outline of Story Arcs
+	Note: Dialogue-IDs (D-XXX) are split into character, id, act num, dialogue num (D-214 = Fedelov's 4th Act-II dialogue)
 
-Initial Setup:
-	- Ship is marooned.
-	- Levu is in her cabin having a mild panic attack.
-	- Eruya is in the cargo hold, inspecting her cargo for damage
-	- Fedelov is in the cafeteria, seeing if he can find alcohol.
+		(ACT ZERO: Intro Cutscene)
 
-PLAYER:
-First Encounters:
-	- You can pick one person to interact with first:
-	- If Eruya, two outcomes:
-		- "Stop poking around my ship!" O-1
-		- "Please return to your cabin. I have the cargo security under control. (Takes convincing)
-		Would you mind checking in with the other passengers?" --> She talks to Levu O-2
-	- If Levu, two outcomes:
-		- "It's nothing to worry about" O-1
-		- "Maybe try going to cafeteria to clear your mind" --> Bad interaction with Fedelov O-3
-	- If Fedelov, two outcomes:
-		- "Now's not the time to get drunk. Get back to your cabin." --> Bad interaction with Levu O-3
-		- "Ah, well, if we're still stranded here by supper, I'll might get out the private reserve..." O-1
+		ACT I: TURBULENCE
 
-Non-Player Encounters / Outcomes:
-	- O-1: No-one talks, Eruya stays in room and plans her manipulation of Fedelov; Fedelov does nothing; Levu continues spiralling
-	- O-2: Eruya calms Levu down; Levu grows admiration for Eruya; Fedelov does nothing
-	- O-3: Fedelov bumps into Levu (or vice-versa); He yells at her, she returns to room and doesn't come out for the rest of the game.
+	Levu:
 
+		D-101:	Mild panicking about the situation; Asks a lot of questions about the navigation
+		 - P1:	Ask her to help by checking on Fedelov; She's enthusiastic to help, but nervous --> Leads to Act-II; Bad impact on Levu & Fedelov
+		 - P2:	Try reassuring her --> No effect; Change dialogue to generic (D-100)
 
-PLAYER:
-Second Encounters: (Supper)
-	- Everyone is present for dinner.
-	- You give a briefing on the situation. (Can bring booze)
-	- Levu (if present) starts showing signs of distress;
-		- If O-1, Eruya calms her. Levu is embarassed; P-1
-		- If O-2, Eruya comforts her; Levu shows genuine appreciation. P-2
-		- If O-3, Not present; P-3
-	- Eruya, speaks authoratatively and diplomatically
-		- If O-1, Talks about getting to know one another, "flirts" with Fedelov (trying to secure deal); Booze->P-3; not P-1; Levu; P-2
-		- If O-2, Talks about getting to know one another; Levu agrees
-		- If O-3, Talks about getting to know one another; Fedelov is uninterested. (Only stays if you bring booze)
-	- Fedelov, doesn't say anything unless you bring alcohol.
-		- If O-1/2, Asks whether he has to report the absence at work
-		- If O-3, Takes the alcohol and returns to cabin
+	Eruya:
 
-Non-Player Encounters / Outcomes:
-	- P-1: No-one talks, Eruya stays in room and plans her manipulation of Fedelov; Fedelov does nothing; Levu continues spiralling
-	- P-2: Eruya calms Levu down; Levu grows admiration for Eruya; Fedelov does nothing
-	- P-3: Fedelov bumps into Levu (or vice-versa); He yells at her, she returns to room and doesn't come out for the rest of the game.
+		World:	Interacting with the cargo-bay interface secures the cargo --> Set Dialogue to (D-202); Set flag "cargo secured" 0x81
 
+		D-201:	She's sneaking around cargo inspecting Fedelov's goods; corporate espionage; Doesn't trust you
+		 - P1:	Confront her about espionage; she is annoyed --> Leads to Act-II; Bad impact on Eruya
+		 - P2:	Ask her to help check on the passengers --> She doesn't trust you to handle the cargo; doesn't accept --> Set Dialogue to (D-203)
+
+		D-202:	She's sneaking around cargo inspecting Fedelov's goods; corporate espionage; DOES trust you
+		 - P1:	Confront her about espionage; she is annoyed, but just tries to change the subject --> Leads to P2
+		 - P2:	Ask her to help check on the passengers; She agrees --> Leads to Act-II; Good impact on Levu; Set flag "E helped L" 0x82
+		 - P3:	Tell her nevermind --> Leads to D-203 (Generic reasking)
+
+		D-203:	You've spoken to her but told her "nevermind"; she asks if there's anything you need
+		 - P1:	Ask her to help check on the passengers; She agrees --> Leads to Act-II; Good impact on Levu
+		 - P2:	Tell her nevermind --> No change
+
+	Fedelov:
+
+		World:	Interacting with the cupboard in captain's quarters --> Set flag "has booze" 0x83
+
+		

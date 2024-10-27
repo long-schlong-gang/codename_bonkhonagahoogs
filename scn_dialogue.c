@@ -38,7 +38,7 @@ void scn_dialogue_handle_events(SDL_Event evt) {
 	Dialogue_HandleEvents(evt);
 
 	if (g_CurrentDialogue.current == NULL) {
-		if (Gamestate_GetFlag(GFLAG_BAD_END) > 0) {
+		if (Gamestate_GetFlag(GFLAG_END) > 0) {
 			g_isRunning = false;
 			return;
 		}

@@ -83,8 +83,8 @@ void Menel_TextBtn_HandleEvent(Menel_TextButton *btn, SDL_Event event) {
 	if (btn->state == MENEL_BTN_DISABLED) return;
 
 	SDL_Rect test_box = btn->bounding_box;
-	test_box.w += 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE;
-	test_box.h += 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE;
+	test_box.w += 2*MENEL_TXTBTN_PAD_X + 2*MENEL_TXTBTN_OUTLINE;
+	test_box.h += 2*MENEL_TXTBTN_PAD_Y + 2*MENEL_TXTBTN_OUTLINE;
 
 	switch (event.type) {
 		case SDL_MOUSEMOTION: {
@@ -138,30 +138,30 @@ void Menel_TextBtn_Draw(Menel_TextButton *btn) {
 			{
 				btn->bounding_box.x,
 				btn->bounding_box.y,
-				btn->bounding_box.w + 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.w + 2*MENEL_TXTBTN_PAD_X + 2*MENEL_TXTBTN_OUTLINE,
 				MENEL_TXTBTN_OUTLINE
 			}, {
 				btn->bounding_box.x,
 				btn->bounding_box.y,
 				MENEL_TXTBTN_OUTLINE,
-				btn->bounding_box.h + 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.h + 2*MENEL_TXTBTN_PAD_Y + 2*MENEL_TXTBTN_OUTLINE,
 			}, {
-				btn->bounding_box.x + btn->bounding_box.w + 2*MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.x + btn->bounding_box.w + 2*MENEL_TXTBTN_PAD_X + MENEL_TXTBTN_OUTLINE,
 				btn->bounding_box.y,
 				MENEL_TXTBTN_OUTLINE,
-				btn->bounding_box.h + 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.h + 2*MENEL_TXTBTN_PAD_Y + 2*MENEL_TXTBTN_OUTLINE,
 			}, {
 				btn->bounding_box.x,
-				btn->bounding_box.y + btn->bounding_box.h + 2*MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE,
-				btn->bounding_box.w + 2*MENEL_TXTBTN_PADDING + 2*MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.y + btn->bounding_box.h + 2*MENEL_TXTBTN_PAD_Y + MENEL_TXTBTN_OUTLINE,
+				btn->bounding_box.w + 2*MENEL_TXTBTN_PAD_X + 2*MENEL_TXTBTN_OUTLINE,
 				MENEL_TXTBTN_OUTLINE
 			}
 		}, 4);
 	}
 
 	TTFText_RenderText(
-		btn->bounding_box.x + MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE,
-		btn->bounding_box.y + MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE,
+		btn->bounding_box.x + MENEL_TXTBTN_PAD_X + MENEL_TXTBTN_OUTLINE,
+		btn->bounding_box.y + MENEL_TXTBTN_PAD_Y + MENEL_TXTBTN_OUTLINE,
 		text_clr, btn->text
 	);
 }

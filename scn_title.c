@@ -113,14 +113,14 @@ void scn_title_setup() {
 			.text = "Start Game", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 250, 0, 0 },
+			.bounding_box = { 50, 275, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_set_menu_page,
 			.user_data = (void *)(MENU_OPTIONS),
 			.text = "Options", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 500, 0, 0 },
+			.bounding_box = { 50, 600, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_exit,
 			.user_data = NULL,
@@ -142,21 +142,21 @@ void scn_title_setup() {
 			.text = "Back to game", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 250, 0, 0 },
+			.bounding_box = { 50, 275, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_set_menu_page,
 			.user_data = (void *)(MENU_OPTIONS),
 			.text = "Options", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 300, 0, 0 },
+			.bounding_box = { 50, 350, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_save_game,
 			.user_data = (void *)(g_CurrentGame.curr_slot),
 			.text = "Save Game", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 500, 0, 0 },
+			.bounding_box = { 50, 600, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_set_menu_action,
 			.user_data = (void *)(MENU_QUIT_TO_TITLE),
@@ -172,35 +172,35 @@ void scn_title_setup() {
 	option_buttons = Menel_TBtnArr_Create(5, (Menel_TextButton[5]){
 		{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 60, 252, 0, 0 },
+			.bounding_box = { 60, 260, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_change_sfx_vol,
 			.user_data = (void *)(-OPT_VOL_DELTA),
 			.text = " - ", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 160, 252, 0, 0 },
+			.bounding_box = { 160, 260, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_change_sfx_vol,
 			.user_data = (void *)(OPT_VOL_DELTA),
 			.text = " + ", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 60, 402, 0, 0 },
+			.bounding_box = { 60, 460, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_change_ost_vol,
 			.user_data = (void *)(-OPT_VOL_DELTA),
 			.text = " - ", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 160, 402, 0, 0 },
+			.bounding_box = { 160, 460, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_change_ost_vol,
 			.user_data = (void *)(OPT_VOL_DELTA),
 			.text = " + ", 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 500, 0, 0 },
+			.bounding_box = { 50, 600, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_back,
 			.user_data = NULL,
@@ -255,21 +255,21 @@ void scn_title_setup() {
 			.text = save_slot_text[0], 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 250, 0, 0 },
+			.bounding_box = { 50, 275, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_load_save,
 			.user_data = (void *)(GAME_SLOT_2),
 			.text = save_slot_text[1], 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 300, 0, 0 },
+			.bounding_box = { 50, 350, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_load_save,
 			.user_data = (void *)(GAME_SLOT_3),
 			.text = save_slot_text[2], 
 		},{
 			.state = MENEL_BTN_NORMAL,
-			.bounding_box = { 50, 500, 0, 0 },
+			.bounding_box = { 50, 600, 0, 0 },
 			.on_highlight = NULL,
 			.on_select = &__cb_back,
 			.user_data = NULL,
@@ -388,14 +388,14 @@ void scn_title_draw_frame() {
 		case MENU_OPTIONS: {
 			Menel_TBtnArr_Draw(option_buttons);
 			TTFText_RenderText(
-				50 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING,
-				200 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING,
+				50 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_X,
+				200 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_Y,
 				CLR_TEXT_NORM, "SFX Volume:"
 			);
 			TTFText_RenderText(
-				50 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING,
-				350 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING,
-				CLR_TEXT_NORM, "OST Volume:"
+				50 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_X,
+				400 + MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_Y,
+				CLR_TEXT_NORM, "Music Volume:"
 			);
 
 			int max_width = 400;
@@ -405,27 +405,27 @@ void scn_title_draw_frame() {
 			// Render SFX Volume percent
 			float vol = (float) Mix_MasterVolume(-1) / MIX_MAX_VOLUME;
 			SDL_RenderDrawRect(g_renderer, &(struct SDL_Rect){
-				250, 250,
+				300, 5+260,
 				max_width + 4, 50 + 4
 			});
 			SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-				250 + 2, 250 + 2,
+				300 + 2, 5+260 + 2,
 				(int)(vol * (float) max_width), 50
 			});
 			int round_vol = (int)(vol * 100);
 			if (round_vol > 0 && round_vol < OPT_VOL_DELTA) round_vol = OPT_VOL_DELTA;
 			else round_vol -= round_vol % OPT_VOL_DELTA;
 			SDL_snprintf(vol_buf, 6, "%i%%", round_vol);
-			TTFText_RenderText(250 + max_width + 50, 255, CLR_TEXT_NORM, vol_buf);
+			TTFText_RenderText(300 + max_width + 50, 265, CLR_TEXT_NORM, vol_buf);
 
 			// Render OST Volume percent
 			vol = (float) Mix_VolumeMusic(-1) / MIX_MAX_VOLUME;
 			SDL_RenderDrawRect(g_renderer, &(struct SDL_Rect){
-				250, 400,
+				300, 5+460,
 				max_width + 4, 50 + 4
 			});
 			SDL_RenderFillRect(g_renderer, &(struct SDL_Rect){
-				250 + 2, 400 + 2,
+				300 + 2, 5+460 + 2,
 				(int)(vol * (float) max_width), 50
 			});
 
@@ -433,7 +433,7 @@ void scn_title_draw_frame() {
 			if (round_vol > 0 && round_vol < OPT_VOL_DELTA) round_vol = OPT_VOL_DELTA;
 			else round_vol -= round_vol % OPT_VOL_DELTA;
 			SDL_snprintf(vol_buf, 6, "%i%%", round_vol);
-			TTFText_RenderText(250 + max_width + 50, 405, CLR_TEXT_NORM, vol_buf);
+			TTFText_RenderText(300 + max_width + 50, 465, CLR_TEXT_NORM, vol_buf);
 
 		} break;
 

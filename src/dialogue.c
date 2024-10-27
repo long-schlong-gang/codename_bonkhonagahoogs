@@ -62,7 +62,10 @@ void Dialogue_LoadTree(char *filename) {
 	}
 
 	__curr_dia_file = Datablock_File_Open(filename);
-	if (__curr_dia_file == NULL) return;
+	if (__curr_dia_file == NULL) {
+		Scene_Set("world");
+		return;
+	};
 
 	// Load header block
 	Datablock *db_header = Datablock_File_GetBlock(__curr_dia_file, 0);
@@ -411,7 +414,7 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 	}
 
 	TTFText_Box dia_box = {
-		DIA_BOX_PADDING,
+		g_screen_width/2 - (DIA_BOX_COLS * TTFText_GlyphWidth())/2 - DIA_BOX_PADDING - TTFTEXT_BOX_BORDER_WIDTH - TTFTEXT_BOX_PADDING,
 		g_screen_height - DIA_BOX_PADDING - (DIA_BOX_ROWS * TTFText_GlyphHeight()),
 		DIA_BOX_COLS, DIA_BOX_ROWS,
 		CLR_TEXT_NORM, node->state,
@@ -426,10 +429,11 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 		// Create Response Buttons
 		if (g_CurrentDialogue.response_buttons == NULL) {
 			int num = node->num_responses;
-			int padd = TTFTEXT_BOX_BORDER_WIDTH - (MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PADDING);
+			int padd_x = TTFTEXT_BOX_BORDER_WIDTH - (MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_X);
+			int padd_y = TTFTEXT_BOX_BORDER_WIDTH - (MENEL_TXTBTN_OUTLINE + MENEL_TXTBTN_PAD_Y);
 			SDL_Rect btn_rect = {
-				.x = dia_box.x + padd + 2*TTFTEXT_BOX_PADDING,
-				.y = dia_box.y + (DIA_BOX_ROWS-1)*TTFText_GlyphHeight() + padd,
+				.x = dia_box.x + padd_x + 2*TTFTEXT_BOX_PADDING,
+				.y = dia_box.y + (DIA_BOX_ROWS-1)*TTFText_GlyphHeight() + padd_y,
 				.w = 0, .h = 0,
 			};
 			Menel_TextButton btn_buf[DIA_MAX_RESPONSES];
@@ -480,7 +484,7 @@ void Dialogue_DrawNode(Dialogue_Node *node) {
 					btn_buf[i].text = node->responses[i].text;
 
 					int x_offset = (SDL_utf8strlen(node->responses[i].text) + 2) * TTFText_GlyphWidth();
-					btn_rect.x += x_offset + MENEL_TXTBTN_PADDING + MENEL_TXTBTN_OUTLINE;
+					btn_rect.x += x_offset + MENEL_TXTBTN_PAD_X + MENEL_TXTBTN_OUTLINE;
 				}
 			}
 
