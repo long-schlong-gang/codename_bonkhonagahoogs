@@ -10,14 +10,18 @@ Mix_Music *g_QueuedMusic = NULL;
 static const char *__sfx_filenames[SFX_COUNT] = {
 	"assets/snd/dit.ogg",		// Dialogue Beep
 	"assets/snd/fast_up.ogg",	// Fast Arp. Up
-	"assets/snd/step_01.ogg",		// Footstep Sound
-	"assets/snd/step_02.ogg",		// Footstep Sound (variant)
+	"assets/snd/step_01.ogg",	// Footstep Sound
+	"assets/snd/step_02.ogg",	// Footstep Sound (variant)
+	"assets/snd/dit_up.ogg",	// UI Sound (rising)
+	"assets/snd/dit_dn.ogg",	// UI Sound (falling)
+	"assets/snd/fifth_up.ogg",	// UI Sound (low)
 };
 
 static const char *__ost_filenames[OST_COUNT] = {
 	"assets/snd/title_intro.ogg",		// Title Screen Theme (intro)
 	"assets/snd/title_loop.ogg",		// Title Screen Theme (loop)
 	"assets/snd/lounge.ogg",			// More relaxed background music
+	"assets/snd/space.ogg",				// Ethereal space theme. idk where to use it.
 };
 
 
@@ -39,19 +43,19 @@ void Sound_Init() {
 	}
 
 	// Set from user preferences
-	float sfx_vol = 0.30f;
+	float sfx_vol = 0.40f;
 	succ = UserData_Get(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_SFX_VOL, &sfx_vol, sizeof(sfx_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 30%%...\n");
-		sfx_vol = 0.30f;
+		Log_Message(LOG_WARNING, "Problem reading user SFX volume preference; Defaulting to 40%%...\n");
+		sfx_vol = 0.40f;
 	}
 	Mix_MasterVolume((int)(sfx_vol * (float) MIX_MAX_VOLUME));
 
-	float ost_vol = 0.10f;
+	float ost_vol = 0.25f;
 	succ = UserData_Get(UDATA_DBID_AUDIOPRF, SOUND_UDATA_IDX_OST_VOL, &ost_vol, sizeof(ost_vol));
 	if (succ < 0) {
-		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 10%%...\n");
-		ost_vol = 0.10f;
+		Log_Message(LOG_WARNING, "Problem reading user OST volume preference; Defaulting to 25%%...\n");
+		ost_vol = 0.25f;
 	}
 	Mix_VolumeMusic((int)(ost_vol * (float) MIX_MAX_VOLUME));
 

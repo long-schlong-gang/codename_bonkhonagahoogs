@@ -3,7 +3,6 @@
 #include "world_data"
 
 World_Zawarudo g_World = {
-	.curr_room = ROOM_QUART_CAPTAIN,
 	.player = {
 		.dir = DIR_DOWN,
 		.x = 2,
@@ -13,6 +12,7 @@ World_Zawarudo g_World = {
 	.room_y = 0,
 	.dialogue_filename = NULL,
 	.txt = NULL,
+	.curr_tiles = NULL,
 };
 
 bool g_World_Debug = false;
@@ -21,21 +21,55 @@ bool g_World_Debug = false;
 void World_Teleport(World_RoomID rm_id, int x, int y, int dir) {
 	if (rm_id < 0 || rm_id >= ROOM_COUNT) return;
 
-	World_Room rm = g_WorldRooms[g_World.curr_room];
-	Pix_Clear(rm.background);
+	Pix_Clear(g_World.curr_room.background);
 
-	rm = g_WorldRooms[rm_id];
+	World_Room rm = g_WorldRooms[rm_id];
 	Pix_Load(rm.background);
-	g_World.curr_room = rm_id;
+
+	if (g_World.curr_tiles != NULL) SDL_free(g_World.curr_tiles);
+	g_World.curr_tiles = SDL_malloc(rm.w * rm.h);
+	g_World.curr_room = rm;
+	SDL_memcpy(g_World.curr_tiles, rm.tile_ids, rm.w * rm.h);
+
+	Gamestate_SetFlag(GFLAG_WORLD_ROOM, rm_id);
+
+	// Check if room should be changed
+	switch (rm_id) {
+
+		case ROOM_QUART_LEVU: {
+			if (Gamestate_GetFlag(GFLAG_ACT_NUM) == ACT_NUM_TURBULENCE)
+				World_Room_SetTile(1, 0, 0x19);
+		} break;
+
+		case ROOM_CAFETERIA: {
+			if (Gamestate_GetFlag(GFLAG_ACT_NUM) == ACT_NUM_TURBULENCE)
+				World_Room_SetTile(2, 1, 0x1A);
+		} break;
+
+		case ROOM_CARGO_HOLD: {
+			if (Gamestate_GetFlag(GFLAG_S_CARGO_SECURE) == 0)
+				World_Room_SetTile(2, 4, 0x16);
+			if (Gamestate_GetFlag(GFLAG_ACT_NUM) == ACT_NUM_TURBULENCE) {
+				World_Room_SetTile(5, 2, 0x15);
+			}
+		} break;
+
+		default: break;
+	}
 
 	g_World.player.x = x;
 	g_World.player.y = y;
+	Gamestate_SetFlag(GFLAG_WORLD_POS_X, x);
+	Gamestate_SetFlag(GFLAG_WORLD_POS_Y, y);
 
 	// reset cached draw position
 	g_World.room_x = 0;
 	g_World.room_y = 0;
 
-	if (dir >= 0) g_World.player.dir = dir;
+	if (dir >= 0) {
+		g_World.player.dir = dir;
+		Gamestate_SetFlag(GFLAG_WORLD_DIR, dir);
+	}
 }
 
 void World_DrawText(char *str, int tile_x, int tile_y, PaletteColour clr) {
@@ -66,15 +100,14 @@ World_TileID World_GetFacingTile(int *x, int *y) {
 		case DIR_DOWN: new_y++; break;
 	}
 
-	World_Room rm = g_WorldRooms[g_World.curr_room];
-	if (new_x < 0 || new_x >= rm.w) return TILE_VOID;
-	if (new_y < 0 || new_y >= rm.h) return TILE_VOID;
+	if (new_x < 0 || new_x >= g_World.curr_room.w) return TILE_VOID;
+	if (new_y < 0 || new_y >= g_World.curr_room.h) return TILE_VOID;
 
 	if (x != NULL) *x = new_x;
 	if (y != NULL) *y = new_y;
 
-	int tile_index = new_y * rm.w + new_x;
-	return rm.tile_ids[tile_index];
+	int tile_index = new_y * g_World.curr_room.w + new_x;
+	return g_World.curr_tiles[tile_index];
 }
 
 static void __World_InteractTile() {
@@ -88,8 +121,10 @@ static void __World_InteractTile() {
 void World_HandleEvents(SDL_Event event) {
 	if (g_World.dialogue_filename != NULL) {
 		Dialogue_LoadTree(g_World.dialogue_filename);
+		g_CurrentDialogue.background = PIX_BG_INTERIOR;
+		Pix_Load(PIX_BG_INTERIOR);
 
-		g_CurrentGame.scripted_next_scene = "world";
+		Gamestate_SetFlag(GFLAG_SCENE_NUM, SCENE_NUM_WORLD);
 		Scene_Set("dia");
 		g_World.dialogue_filename = NULL;
 		return;
@@ -97,7 +132,7 @@ void World_HandleEvents(SDL_Event event) {
 
 	if (event.type == SDL_KEYDOWN) {
 		if (event.key.keysym.sym == SDLK_F5) g_World_Debug = !g_World_Debug;
-		//if (event.key.keysym.sym == SDLK_F4) World_Teleport(ROOM_BRIDGE, 3, 0, DIR_DOWN);
+		if (event.key.keysym.sym == SDLK_F6) Gamestate_Save(g_CurrentGame.curr_slot);
 
 		int new_x = g_World.player.x;
 		int new_y = g_World.player.y;
@@ -114,19 +149,19 @@ void World_HandleEvents(SDL_Event event) {
 			} return;
 			default: return;
 		}
+		Gamestate_SetFlag(GFLAG_WORLD_DIR, g_World.player.dir);
 
 		if (g_World.txt != NULL) {
 			g_World.txt = NULL;
 			return;
 		}
 
-		World_Room rm = g_WorldRooms[g_World.curr_room];
-		if (new_x < 0 || new_x >= rm.w) return;
-		if (new_y < 0 || new_y >= rm.h) return;
+		if (new_x < 0 || new_x >= g_World.curr_room.w) return;
+		if (new_y < 0 || new_y >= g_World.curr_room.h) return;
 
 		// Check if tile is void or not
-		int tile_index = new_y * rm.w + new_x;
-		World_TileID tile_id = rm.tile_ids[tile_index];
+		int tile_index = new_y * g_World.curr_room.w + new_x;
+		World_TileID tile_id = g_World.curr_tiles[tile_index];
 		if (tile_id == 0) return;
 		World_Tile tl = g_WorldTiles[tile_id - 1];
 		if (!tl.walkable) return;
@@ -134,6 +169,8 @@ void World_HandleEvents(SDL_Event event) {
 		// Move the player
 		g_World.player.x = new_x;
 		g_World.player.y = new_y;
+		Gamestate_SetFlag(GFLAG_WORLD_POS_X, g_World.player.x);
+		Gamestate_SetFlag(GFLAG_WORLD_POS_Y, g_World.player.y);
 
 		// Play step sound
 		Sound_Effect step_snd = SFX_STEP_1;
@@ -143,8 +180,8 @@ void World_HandleEvents(SDL_Event event) {
 		// Trigger Callbacks
 		if (tl.on_enter != NULL) tl.on_enter(tl.udata);
 
-		tile_index = g_World.player.y * rm.w + g_World.player.x;
-		tile_id = rm.tile_ids[tile_index];
+		tile_index = g_World.player.y * g_World.curr_room.w + g_World.player.x;
+		tile_id = g_World.curr_tiles[tile_index];
 		if (tile_id != 0) {
 			World_Tile prev_tile = g_WorldTiles[tile_id - 1];
 			if (prev_tile.on_exit != NULL) prev_tile.on_exit(prev_tile.udata);
@@ -228,27 +265,25 @@ void World_Draw() {
 }
 
 
-void World_DrawRoom(World_RoomID room) {
-	World_Room rm = g_WorldRooms[room];
-
+void World_DrawRoom() {
 	if (g_World.room_x == 0) {
-		g_World.room_x = (g_screen_width - 2*WORLD_PADDING_X)/2 - (rm.w * WORLD_TILE_SIZE)/2 + WORLD_PADDING_X;
+		g_World.room_x = (g_screen_width - 2*WORLD_PADDING_X)/2 - (g_World.curr_room.w * WORLD_TILE_SIZE)/2 + WORLD_PADDING_X;
 	}
 	if (g_World.room_y == 0) {
-		g_World.room_y = (g_screen_height - 2*WORLD_PADDING_Y)/2 - (rm.h * WORLD_TILE_SIZE)/2 + WORLD_PADDING_Y;
+		g_World.room_y = (g_screen_height - 2*WORLD_PADDING_Y)/2 - (g_World.curr_room.h * WORLD_TILE_SIZE)/2 + WORLD_PADDING_Y;
 	}
 
-	Pix_Draw(rm.background,
+	Pix_Draw(g_World.curr_room.background,
 		g_World.room_x,
 		g_World.room_y,
-		rm.w * WORLD_TILE_SIZE,
-		rm.h * WORLD_TILE_SIZE
+		g_World.curr_room.w * WORLD_TILE_SIZE,
+		g_World.curr_room.h * WORLD_TILE_SIZE
 	);
 
 	// Draw any tile-specifc sprites
-	for (int y=0; y<rm.h; y++) {
-		for (int x=0; x<rm.w; x++) {
-			World_TileID tid = rm.tile_ids[y * rm.w + x];
+	for (int y=0; y<g_World.curr_room.h; y++) {
+		for (int x=0; x<g_World.curr_room.w; x++) {
+			World_TileID tid = g_World.curr_tiles[y * g_World.curr_room.w + x];
 			if (tid == TILE_VOID) continue;
 			World_Tile t = g_WorldTiles[tid - 1];
 			if (t.tile_img < 0) continue;
@@ -263,15 +298,13 @@ void World_DrawRoom(World_RoomID room) {
 	}
 
 	if (g_World_Debug) {
-		for (int y=0; y<rm.h; y++) {
-			for (int x=0; x<rm.w; x++) {
+		for (int y=0; y<g_World.curr_room.h; y++) {
+			for (int x=0; x<g_World.curr_room.w; x++) {
+				World_TileID tid = g_World.curr_tiles[y * g_World.curr_room.w + x];
+
 				SDL_SetRenderDrawColor(g_renderer, 0xFF, 0x80, 0x00, 0x40);
-				if (rm.tile_ids[y * rm.w + x] == TILE_VOID) {
-					SDL_SetRenderDrawColor(g_renderer, 0xFF, 0x00, 0x00, 0x40);
-				}
-				if (rm.tile_ids[y * rm.w + x] == TILE_WALKWAY) {
-					SDL_SetRenderDrawColor(g_renderer, 0x00, 0xFF, 0x00, 0x40);
-				}
+				if (tid == TILE_VOID) SDL_SetRenderDrawColor(g_renderer, 0xFF, 0x00, 0x00, 0x40);
+				if (tid == TILE_WALKWAY) SDL_SetRenderDrawColor(g_renderer, 0x00, 0xFF, 0x00, 0x40);
 
 				// Outline
 				SDL_RenderDrawRect(g_renderer, &(struct SDL_Rect){
@@ -297,6 +330,13 @@ void World_DrawRoom(World_RoomID room) {
 		}
 	}
 }
+
+
+void World_Room_SetTile(int x, int y, World_TileID tile_id) {
+	int tile_index = g_World.curr_room.w * y + x;
+	g_World.curr_tiles[tile_index] = tile_id;
+}
+
 
 void World_CB_Teleport(void *_dest) {
 	if (_dest == NULL) return;

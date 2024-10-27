@@ -13,6 +13,11 @@
 
 //	Scene Initialisation
 void scn_dialogue_setup() {
+	if (g_CurrentDialogue.bg_music != OST_NONE) {
+		Sound_OST_QueueTrack(g_CurrentDialogue.bg_music);
+		Sound_OST_FadeNext(1000);
+	}
+
 	Dialogue_Start();
 }
 
@@ -20,6 +25,9 @@ void scn_dialogue_setup() {
 //	Scene Termination
 void scn_dialogue_teardown() {
 	Dialogue_UnloadTree();
+
+	Sound_OST_ClearQueue();
+	Sound_OST_FadeNext(250);
 }
 
 
@@ -30,11 +38,12 @@ void scn_dialogue_handle_events(SDL_Event evt) {
 	Dialogue_HandleEvents(evt);
 
 	if (g_CurrentDialogue.current == NULL) {
-		if (g_CurrentGame.scripted_next_scene == NULL) {
+		if (Gamestate_GetFlag(GFLAG_END) > 0) {
 			g_isRunning = false;
 			return;
 		}
-		Scene_Set(g_CurrentGame.scripted_next_scene);
+
+		Gamestate_NextScene();
 	}
 }
 
